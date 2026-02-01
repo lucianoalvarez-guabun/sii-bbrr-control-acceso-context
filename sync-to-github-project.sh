@@ -7,7 +7,7 @@ set -e
 # Configuración
 GITHUB_TOKEN="${1:-${GITHUB_TOKEN}}"
 REPO_OWNER="lucianoalvarez-guabun"
-PROJECT_REPO="agile-board-bbrr-control-acceso"
+PROJECT_REPO="sii-bbrr-control-acceso-context"
 REGISTRY_FILE="registro-hdu.md"
 
 # Verificar token
@@ -186,7 +186,7 @@ skipped=0
 echo "Procesando $REGISTRY_FILE..."
 echo ""
 
-while IFS='|' read -r id filename functionality module status; do
+while IFS='|' read -r _ id filename functionality module status _; do
     # Limpiar espacios
     id=$(echo "$id" | xargs)
     filename=$(echo "$filename" | xargs)
@@ -195,7 +195,7 @@ while IFS='|' read -r id filename functionality module status; do
     status=$(echo "$status" | xargs)
     
     # Validar formato HdU-XXX
-    if [[ "$id" =~ ^HdU-[0-9]{3}$ ]] && [ "$filename" != "-" ]; then
+    if [[ "$id" =~ ^HdU-[0-9]{3}$ ]] && [ "$filename" != "-" ] && [ -n "$filename" ]; then
         sync_hdu "$id" "$filename" "$functionality" "$module" "$status"
         ((processed++))
     fi
