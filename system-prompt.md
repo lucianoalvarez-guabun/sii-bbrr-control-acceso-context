@@ -215,13 +215,14 @@ Especificación dice: "El sistema despliega información del usuario... imagen s
 **RESTRICCIÓN CRÍTICA - SOLO TABLAS, ÍNDICES Y LLAVES:**
 
 El DDL debe contener **ÚNICAMENTE**:
-- ✅ `CREATE TABLE` (solo tablas nuevas)
-- ✅ `ALTER TABLE` (solo agregar columnas nuevas, keys nuevas)
+- ✅ `CREATE TABLE` (tablas nuevas o tablas de extensión con sufijo `_EXT`)
 - ✅ `CREATE INDEX` (índices nuevos para optimización)
-- ✅ `ALTER TABLE ... ADD CONSTRAINT` (foreign keys, check constraints, unique constraints)
 - ✅ `CREATE SEQUENCE` (secuencias para IDs)
+- ✅ `ALTER TABLE ... ADD CONSTRAINT` (solo para tablas NUEVAS creadas en este módulo)
 
 **PROHIBIDO - NO INCLUIR BAJO NINGUNA CIRCUNSTANCIA:**
+- ❌ `ALTER TABLE ADD COLUMN` en tablas existentes (rompe sistemas legados)
+- ❌ `ALTER TABLE MODIFY COLUMN` en tablas existentes
 - ❌ Stored Procedures (`CREATE PROCEDURE`)
 - ❌ Views (`CREATE VIEW`)
 - ❌ Triggers (`CREATE TRIGGER`)
@@ -231,31 +232,100 @@ El DDL debe contener **ÚNICAMENTE**:
 - ❌ DROP statements
 - ❌ Procedimientos de auditoría automática
 
+**REGLA DE ORO:** Si tabla existe, NO modificarla. Si faltan columnas, crear tabla de extensión.
+
 **Si NO hay cambios en BD:** El archivo DDL puede estar vacío o contener solo comentarios indicando "Sin cambios en modelo de datos".
 
-**Validación:**
+**Validación con SQLcl - OBLIGATORIA ANTES DE EJECUTAR:**
 
-1. **Verificación del Modelo Actual:**
-   - Usar SQLcl 25.3 con datos de conexión: `backend/acaj-ms/src/main/resources/application.properties`
-   - Conexión: `sql intbrprod/Avalexpl@//queilen.sii.cl:1540/koala`
+1. **Objetivo de la Validación:**
+   - **Detectar qué tablas/columnas YA existen** → mantenerlas intactas
+   - **Identificar qué falta** → crear solo lo necesario
+   - **Evitar duplicados y errores** → no sobrescribir datos existentes
+
+2. **Conexión a Oracle:**
+   - Herramienta: **SQLcl 25.3** (NO usar `sql`, usar `sqlcl`)
+   - Datos de conexión: `backend/acaj-ms/src/main/resources/application.properties`
+   - Comando: `sqlcl intbrprod/Avalexpl@//queilen.sii.cl:1540/koala`
    - Schema: AVAL
-   - Verificar tablas existentes antes de crear
+   - BD: Oracle 19c (queilen.sii.cl:1540/koala)
 
-2. **Qué Incluir:**
-   - `CREATE TABLE` solo para tablas NUEVAS
-   - `ALTER TABLE` solo para MODIFICACIONES a tablas existentes (nuevas columnas, nuevas constraints)
-   - Índices solo donde sea necesario para optimización
+3. **Queries de Verificación (ejecutar ANTES de crear DDL):**
+   ```sql
+   -- Verificar si tabla existe
+   SELECT COUNT(*) as existe FROM all_tables 
+   WHERE owner = 'AVAL' AND table_name = 'BR_NOMBRE_TABLA';
+   
+   -- Si existe, verificar estructura
+   DESC AVAL.BR_NOMBRE_TABLA;
+   
+   -- Verificar columnas específicas
+   SELECT column_name, data_type, data_length, nullable
+   FROM all_tab_columns
+   WHERE owner = 'AVAL' AND table_name = 'BR_NOMBRE_TABLA'
+   ORDER BY column_id;
+   
+   -- Verificar constraints
+   SELECT constraint_name, constraint_type
+   FROM all_constraints
+   WHERE owner = 'AVAL' AND table_name = 'BR_NOMBRE_TABLA';
+   ```
+
+4. **Reglas de Ejecución del DDL:**
+   - ✅ **SI tabla NO existe** → Ejecutar `CREATE TABLE`
+   - ✅ **SI tabla existe** → USAR tal cual (NO modificar)
+   - ✅ **SI faltan columnas** → Crear tabla de extensión (ej: `BR_TABLA_EXT`) con FK a original
+   - ✅ **SI faltan índices** → Ejecutar `CREATE INDEX` (solo si no afecta performance legado)
+   - ❌ **NO usar `ALTER TABLE ADD COLUMN`** → Puede romper sistemas legados
+   - ❌ **NO modificar estructura existente** → Mantener compatibilidad hacia atrás
+
+   **Ejemplo de extensión de tabla:**
+   ```sql
+   -- Si BR_FUNCIONES existe pero falta columnas de auditoría:
+   -- NO hacer: ALTER TABLE BR_FUNCIONES ADD (FUNC_FECHA_MODIFICACION ...)
+   -- SÍ hacer: Crear tabla extensión
+   
+   CREATE TABLE AVAL.BR_FUNCIONES_EXT (
+       FEXT_FUNC_ID             NUMBER          NOT NULL,
+       FEXT_FECHA_MODIFICACION  TIMESTAMP       NULL,
+       FEXT_USUARIO_MODIFICACION NUMBER         NULL,
+       CONSTRAINT PK_FUNCIONES_EXT PRIMARY KEY (FEXT_FUNC_ID),
+       CONSTRAINT FK_FUNCIONES_EXT_FUNC FOREIGN KEY (FEXT_FUNC_ID)
+           REFERENCES AVAL.BR_FUNCIONES(FUNC_ID) ON DELETE CASCADE
+   );
+   ```
+
+5. **Formato del Script DDL:**
+   - Incluir comentarios de verificación antes de cada CREATE/ALTER:
+     ```sql
+     -- *** VALIDACIÓN REQUERIDA ANTES DE EJECUTAR ***
+     -- Ejecutar en SQLcl:
+     --   SELECT COUNT(*) as existe FROM all_tables 
+     --   WHERE owner = 'AVAL' AND table_name = 'BR_TABLA';
+     --
+     -- Si existe = 0: ejecutar CREATE TABLE
+     -- Si existe = 1: COMENTAR esta sección
+     
+     CREATE TABLE AVAL.BR_TABLA (...);
+     ```
+
+6. **Qué Incluir en DDL:**
+   - `CREATE TABLE` para tablas NUEVAS que NO existen
+   - `CREATE TABLE` para tablas de EXTENSIÓN (sufijo `_EXT`) cuando tabla existe pero falta columnas
+   - `CREATE INDEX` solo índices nuevos para optimización (validar impacto en legado)
+   - `CREATE SEQUENCE` solo secuencias nuevas
    - Foreign keys válidas apuntando a tablas existentes
-   - NO incluir definiciones de tablas actuales
+   - **NO usar `ALTER TABLE ADD COLUMN`** en tablas existentes
    - NO incluir DROP statements
    - NO incluir SP, Views, Triggers u otros elementos compilados
 
-3. **Validación:**
-   - Todos los scripts deben ser validados con SQLcl
-   - Sintaxis correcta (no copiada de otros sistemas)
-   - Constraints consistentes con el modelo existente
-   - Foreign keys válidas
-   - Índices optimizados para búsquedas frecuentes
+7. **Documentación DDL/README.md:**
+   - Crear archivo README.md en carpeta DDL/ con:
+     - Instrucciones completas de conexión SQLcl
+     - Queries de verificación paso a paso
+     - Decisión de ejecución según hallazgos (casos A/B/C/D)
+     - Validación post-ejecución
+     - Troubleshooting de errores comunes (ORA-00942, ORA-00955, etc.)
 
 ### HdU-*.md
 
@@ -639,3 +709,118 @@ Agregar sección "Validación de Coherencia":
 - Backend: `backend/acaj-ms` (context-path: `/acaj-ms`)
 - Conexión BD: intbrprod/Avalexpl@queilen.sii.cl:1540/koala (Schema: AVAL)
 - Modelo SQL: Validar con `sql` (SQLcl 25.3)
+## Modelo Oracle Real (Base Existente)
+
+**Conexión:** queilen.sii.cl:1540/koala | Schema: AVAL | Oracle 19c
+
+**Tablas relacionadas con Funciones/Roles:**
+
+1. **BR_FUNCIONES** (3 cols): FUNS_CODIGO NUMBER(3) PK, FUNS_DESCRIPCION VARCHAR2(60), FUNS_VIGENTE NUMBER(1)
+2. **BR_OPCIONES** (9 cols): OPCI_CODIGO NUMBER(4) PK + 8 más
+3. **BR_OPCIONES_FUNCION** (3 cols, SIN PK, SIN ORDEN): FUNS_CODIGO, OPCI_CODIGO, TIPO_ACCESO
+4. **BR_ATRIBUCIONES** (2 cols): ATRI_CODIGO VARCHAR2(2) PK (operación+alcance embebido), ATRI_DESCRIPCION
+5. **BR_ATRIBUCIONES_OPCION_FUNCION** (5 cols): AOFU_FUNS_CODIGO, AOFU_OPCI_CODIGO, AOFU_ATRI_CODIGO (PK compuesta), fechas vigencia
+6. **BR_FUNCIONES_CARGO_RELACIONADO** (7 cols): Usuario-función con cargo/unidad
+7. **BR_RELACIONADOS** (9 cols): RELA_RUT NUMBER(9) PK + 8 más
+
+**CRÍTICO - Alcances embebidos en ATRI_CODIGO (2 chars):**
+- NO existe tabla BR_ALCANCES
+- 1º char = Operación (B=Consultar, J=Ingresar, U=Modificar, E=Eliminar, etc.)
+- 2º char = Alcance (F=Personal, U=Unidad, G=Regional, N=Nacional)
+- Ejemplo: BN=Consultar Nacional, JU=Ingresar Unidad
+
+**Nomenclatura especificado → real:**
+- FUNC_* → FUNS_*
+- BR_FUNCION_OPCION → BR_OPCIONES_FUNCION
+- FOAA_* → AOFU_*
+- BR_USUARIO_FUNCION → BR_FUNCIONES_CARGO_RELACIONADO
+- USFU_* → FCGR_*
+
+**DDL completo:** `/docs/develop-plan/DDL/MODELO-ORACLE-REAL.sql`
+
+**Directorio DDL por módulo:** Scripts solo para nuevas funcionalidades. Modelo base en `/docs/develop-plan/DDL/`## Patrones de Implementación Backend (acaj-ms)
+
+**Referencia:** Código funcionando en `/backend/acaj-ms/` con nomenclatura Oracle real
+
+**1. Estructura de Queries (JdbcTemplate):**
+```java
+// Pattern: Extraer alcance de ATRI_CODIGO con SUBSTR
+String sql = """
+    SELECT 
+        aofu.aofu_atri_codigo as atribucion_codigo,
+        SUBSTR(aofu.aofu_atri_codigo, 1, 1) as operacion,
+        SUBSTR(aofu.aofu_atri_codigo, 2, 1) as alcance
+    FROM AVAL.BR_ATRIBUCIONES_OPCION_FUNCION aofu
+    ...
+    """;
+```
+
+**2. JOINs con modelo real:**
+```java
+// Pattern: Usuario → Cargo → Función → Opciones → Atribuciones
+FROM AVAL.BR_CARGOS_RELACIONADO cgre
+JOIN AVAL.BR_FUNCIONES_CARGO_RELACIONADO fcgr 
+    ON fcgr.fcgr_cgre_unne_tiun_codigo = cgre.cgre_cgun_unne_tiun_codigo
+    AND fcgr.fcgr_cgre_unne_codigo = cgre.cgre_cgun_unne_codigo
+    AND fcgr.fcgr_cgre_codigo = cgre.cgre_cgun_codigo
+    AND fcgr.fcgr_cgre_rut = cgre.cgre_rela_rut
+JOIN AVAL.BR_ATRIBUCIONES_OPCION_FUNCION aofu
+    ON aofu.aofu_funs_codigo = fcgr.fcgr_funs_codigo
+JOIN AVAL.BR_OPCIONES opci
+    ON opci.opci_codigo = aofu.aofu_opci_codigo
+WHERE cgre.cgre_rela_rut = ?
+  AND cgre.cgre_fecha_termino > SYSDATE
+```
+
+**3. Alcances - Mapeo nombres:**
+```java
+// Pattern: switch para traducir código a nombre
+public static String obtenerNombreAlcance(String codigo) {
+    return switch (codigo) {
+        case "F" -> "Personal";
+        case "U" -> "Unidad";
+        case "G" -> "Regional";
+        case "N" -> "Nacional";
+        default -> "Desconocido";
+    };
+}
+```
+
+**4. Agrupación en Java (no SQL):**
+```java
+// Pattern: Agrupar atribuciones por opción en Java
+Map<Integer, MetadataPermisoDto> permisoMap = new LinkedHashMap<>();
+for (Map<String, Object> row : rows) {
+    Integer opcionCodigo = ((Number) row.get("OPCION")).intValue();
+    MetadataPermisoDto permiso = permisoMap.computeIfAbsent(opcionCodigo, k -> {
+        // Crear DTO opción
+    });
+    permiso.getAtribuciones().add(atribucion);
+}
+```
+
+**5. Vigencia con fechas:**
+```java
+// Pattern: Vigente = fecha_termino > SYSDATE
+WHERE cgre.cgre_fecha_termino > SYSDATE
+  AND opci.opci_vigente = 1  -- NUMBER(1): 1=vigente, 0=no vigente
+```
+
+**6. LEFT JOIN con extensiones:**
+```sql
+-- Pattern: Usar COALESCE para defaults
+SELECT 
+    of.FUNS_CODIGO,
+    COALESCE(ext.ORDEN, 999) as ORDEN,
+    ext.STATIC_CODE
+FROM BR_OPCIONES_FUNCION of
+LEFT JOIN BR_OPCIONES_EXTENSION ext 
+    ON of.FUNS_CODIGO = ext.FUNS_CODIGO 
+    AND of.OPCI_CODIGO = ext.OPCI_CODIGO
+```
+
+**7. Nomenclatura consistente:**
+- Prefijos tabla: FUNS_, OPCI_, AOFU_, FCGR_, RELA_, etc.
+- Sin IDs auto-incrementales: NUMBER(3), NUMBER(4) con max valores
+- Sin campos auditoría extendidos (USUARIO_CREACION, etc.)
+- Fechas vigencia: FECHA_INICIO, FECHA_TERMINO (NULL = indefinido)
