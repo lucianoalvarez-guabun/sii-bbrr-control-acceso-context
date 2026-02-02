@@ -15,7 +15,7 @@
 
 ## Mockups de Referencia
 
-- **image-0127.png**: TitulosAccordion con botón eliminar (icono X o papelera)
+Ver [VIII-Mantenedor-Grupos/frontend.md](./frontend.md) - Sección "Análisis de Mockups" y componente "TituloAccordion"
 
 ## Criterios de Aceptación
 

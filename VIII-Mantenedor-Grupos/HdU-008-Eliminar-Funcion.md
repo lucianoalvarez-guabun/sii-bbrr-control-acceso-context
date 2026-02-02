@@ -15,7 +15,7 @@
 
 ## Mockups de Referencia
 
-- **image-0127.png**: Lista de funciones con botón eliminar (X) por función
+Ver [VIII-Mantenedor-Grupos/frontend.md](./frontend.md) - Sección "Análisis de Mockups" y componente "FuncionItem"
 
 ## Criterios de Aceptación
 

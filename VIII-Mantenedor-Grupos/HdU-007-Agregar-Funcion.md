@@ -15,8 +15,7 @@
 
 ## Mockups de Referencia
 
-- **image-0143.png**: Modal "Agregar Función" con título read-only y dropdown función
-- **image-0127.png**: Vista del título expandido mostrando funciones
+Ver [VIII-Mantenedor-Grupos/frontend.md](./frontend.md) - Sección "Análisis de Mockups" y componente "AddFuncionModal"
 
 ## Criterios de Aceptación
 

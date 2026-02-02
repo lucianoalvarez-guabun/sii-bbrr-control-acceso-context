@@ -15,8 +15,7 @@
 
 ## Mockups de Referencia
 
-- **image-0135.png**: SearchBar con dropdown de grupos, toggle "Vigente/No Vigente" y lupa
-- **image-0127.png**: Resultado de búsqueda mostrando grupo "Sistema OT" expandido con títulos y funciones
+Ver [VIII-Mantenedor-Grupos/frontend.md](./frontend.md) - Sección "Análisis de Mockups" y componentes "SearchBar" y "GroupSection"
 
 ## Criterios de Aceptación
 

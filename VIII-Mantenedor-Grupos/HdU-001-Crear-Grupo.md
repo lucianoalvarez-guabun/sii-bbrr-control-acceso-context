@@ -15,8 +15,7 @@
 
 ## Mockups de Referencia
 
-- **Imagen 4 (inline)**: Formulario inline "Crear Grupo" expandido en pantalla principal
-- **image-0127.png**: Pantalla principal mostrando grupo recién creado
+Ver [VIII-Mantenedor-Grupos/frontend.md](./frontend.md) - Sección "Análisis de Mockups" y componente "CreateGroupForm"
 
 ## Criterios de Aceptación
 

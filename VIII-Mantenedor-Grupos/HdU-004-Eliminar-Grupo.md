@@ -15,7 +15,7 @@
 
 ## Mockups de Referencia
 
-- **image-0127.png**: GroupSection con botón papelera (eliminar)
+Ver [VIII-Mantenedor-Grupos/frontend.md](./frontend.md) - Sección "Análisis de Mockups" y componente "GroupSection"
 
 ## Criterios de Aceptación
 

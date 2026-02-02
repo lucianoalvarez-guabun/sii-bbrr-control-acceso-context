@@ -9,11 +9,11 @@ Vue 3 + Composition API | Bootstrap 5.2 | Vuex 4.1 | Axios | acaj-intra-ui
 
 | # | Imagen | Descripción Visual | Componente Identificado | Propósito Funcional |
 |---|--------|-------------------|------------------------|---------------------|
-| 1 | ![image-0135](./images/image-0135.png) | Header verde "Control de Acceso" con logo puerta verde izquierda, info usuario derecha ("Rut autenticado: 15000000-1 | 30-06-2025 10:00"), tabs horizontales: "Usuario relacionado", "Unidad de negocio", "Funciones", "Mantenedores" (con dropdown). Debajo: fila blanca con toggle "No Vigente"/"Vigente" (Vigente activo en verde), label "Grupo", input dropdown vacío, botón lupa verde, engranaje verde, botón "Agregar" verde, icono reloj verde derecha. | HeaderNav + SearchBar vacío | Estado inicial de búsqueda sin grupo seleccionado. Toggle en "Vigente" por defecto. |
+| 1 | ![image-0132](./images/image-0132.png) | Header verde "Control de Acceso" con logo puerta verde izquierda, info usuario derecha ("Rut autenticado: 15000000-1 | 30-06-2025 10:00"), tabs horizontales: "Usuario relacionado", "Unidad de negocio", "Funciones", "Mantenedores" (con dropdown). Debajo: fila blanca con toggle "No Vigente"/"Vigente" (Vigente activo en verde), label "Grupo", input dropdown vacío, botón lupa verde, engranaje verde, botón "Agregar" verde, icono reloj verde derecha. | HeaderNav + SearchBar vacío | Estado inicial de búsqueda sin grupo seleccionado. Toggle en "Vigente" por defecto. |
 | 2 | ![image-0127](./images/image-0127.png) | Header completo (igual image-0135) + SearchBar con dropdown mostrando grupo seleccionado. Debajo: fila verde oscuro expandida "Grupo: Sistema OT" con icono estrella blanco izquierda, icono usuario blanco + "100" centro-derecha (clickeable), toggle "No Vigente"/"Vigente" (ON verde) derecha, icono papelera gris extremo derecha. Debajo: acordeón verde claro colapsado "Título 1: OT Reportes" con icono carpeta, flecha abajo (expandible). Expandido muestra 3 filas verde oscuro: "Función 1: csdfcasc", "Función 2", "Función 3" cada una con icono engranaje verde izquierda, icono papelera gris derecha, botón (+) verde extremo derecha. Debajo otro acordeón verde claro colapsado "Título 2: OT Opciones para jefaturas" con 2 funciones (Función 1, Función 2), mismo patrón de iconos. | GroupSection + TituloAccordion + FuncionItem | Visualización completa de grupo seleccionado con estructura jerárquica: grupo → títulos (acordeones) → funciones (lista). |
 | 3 | ![image-0129](./images/image-0129.png) | Header completo + SearchBar con dropdown "Grupo" vacío. Debajo: bloque expandido con fondo blanco. Primera fila verde oscuro con icono estrella blanco izquierda, input verde "Ingrese nombre del Grupo" (placeholder visible), toggle "No Vigente"/"Vigente" (Vigente ON verde) derecha. Segunda fila verde claro con icono carpeta verde izquierda, input verde claro "Ingrese nombre del Título" (placeholder visible). Tercera fila verde más claro con icono engranaje verde izquierda, dropdown verde claro "Seleccione Función" (cerrado). Abajo: dos botones circulares icono X gris (cancelar) y check verde (guardar). | CreateGroupForm inline | Formulario expandible inline (NO modal) para crear grupo nuevo con primer título y función en un solo paso. Se despliega debajo del SearchBar al hacer clic en botón "Agregar". |
 | 4 | ![image-0027](./images/image-0027.png) | Modal pequeño header verde "Alerta", body blanco "Registro guardado correctamente", botón verde "Aceptar" | SuccessAlert | **NOTA:** Componente estándar, NO incluir en flujos. Solo indicar mensaje específico. |
-| 5 | ![image-0132](./images/image-0132.png) | Modal header verde "Usuarios por Grupo" con botón X cierre. Dentro: fila verde claro con icono verde izquierda "Grupo: Sistema OT" y número "100" derecha. Tabla blanca debajo con columnas (Rut, Nombre, Vigencia Inicial, Vigencia Final), 3 registros ejemplo "15000000-1 | Adela Maria Lozano Arriagada | 05-08-2025 | 05-08-2026". Botón verde "Exportar a Excel" con icono Excel abajo derecha. | UserListModal | Visualizar lista completa de usuarios asignados al grupo con sus períodos de vigencia. Permite exportar datos a Excel. |
+| 5 | ![image-0135](./images/image-0135.png) | Modal header verde "Usuarios por Grupo" con botón X cierre. Dentro: fila verde claro con icono verde izquierda "Grupo: Sistema OT" y número "100" derecha. Tabla blanca debajo con columnas (Rut, Nombre, Vigencia Inicial, Vigencia Final), 3 registros con mismo RUT "15000000-1" y nombre "Adela Maria Lozano Arriagada" (datos repetidos son ilustrativos, en real serían usuarios distintos). Botón verde "Exportar a Excel" con icono Excel abajo derecha. | UserListModal | Visualizar lista completa de usuarios asignados al grupo con sus períodos de vigencia. Se abre al hacer clic en el número de usuarios (ej: "100") del GroupSection. Permite exportar datos a Excel. |
 | 6 | ![image-0034](./images/image-0034.png) | Modal header verde "Alerta", texto "¿Está seguro que desea eliminar este registro? Perderá toda la información asociada.", botones "Aceptar" (verde) y "Cancelar" (blanco) | ConfirmDialog | **NOTA:** Componente estándar, NO incluir en flujos. Solo indicar mensaje específico. |
 | 7 | ![image-0139](./images/image-0139.png) | Modal header verde "Agregar Título" con botón X blanco cierre derecha. Body: input verde claro con icono carpeta verde "Ingrese Título" (placeholder). Debajo label "Funciones del título:". Fila con dropdown verde claro "Seleccione la Función" (cerrado) con icono engranaje verde izquierda, botón circular (+) verde derecha. Debajo área vacía para funciones seleccionadas. Abajo botón rectangular verde "Agregar" centrado. | AddTituloModal | Modal para agregar nuevo título a grupo existente. Permite seleccionar múltiples funciones antes de guardar (botón + agrega función a lista temporal). |
 | 8 | ![image-0143](./images/image-0143.png) | Modal header verde "Agregar Función" con botón X blanco cierre derecha. Body: fila verde claro read-only con icono carpeta verde "Título 1: fccfgfg" (no editable, muestra título seleccionado). Debajo dropdown verde claro "Seleccione la Función" (cerrado) con icono engranaje verde izquierda, botón circular (+) verde derecha. Debajo área vacía. Abajo botón rectangular verde "Agregar" centrado. | AddFuncionModal | Modal para agregar funciones adicionales a un título específico ya existente. Título se muestra read-only (contexto). Permite agregar múltiples funciones (botón + agrega a lista temporal). |
@@ -38,7 +38,7 @@ Vue 3 + Composition API | Bootstrap 5.2 | Vuex 4.1 | Axios | acaj-intra-ui
 
 **Imagen Referencia Estado Inicial:**
 
-![SearchBar vacío](./images/image-0135.png)
+![SearchBar vacío](./images/image-0132.png)
 
 **Imagen Referencia Después de Buscar (con GroupSection):**
 
@@ -139,7 +139,7 @@ Response 201: {id: 100, nombreGrupo, vigente: "S", titulos: [...]}
 - Card principal con header:
   - Icono grupo + "Grupo: [nombre]"
   - Badge "Vigente" (verde) o "No vigente" (gris)
-  - Botón usuarios (icono personas): abre UserListModal
+  - Contador usuarios clickeable (ej: icono usuario + "100"): abre UserListModal
   - Toggle vigencia (switch): actualiza GRUP_VIGENTE
   - Botón (+) agregar título: abre AddTituloModal
   - Botón eliminar grupo (basurero)
@@ -186,13 +186,13 @@ Response 409: {error: "Grupo vigente no puede eliminarse"}
 
 **Funcionalidad:**
 - Acordeón colapsable por cada título
-- Header azul claro:
+- Header verde claro:
   - Icono título + "Título: [nombre]"
   - Badge "Orden: [N]"
   - Botón (+) agregar función: abre AddFuncionModal
   - Botón eliminar título (basurero)
   - Icono flecha expandir/colapsar
-- Body (expandido): Lista de FuncionItem en filas verdes
+- Body (expandido): Lista de FuncionItem en filas verde oscuro
 
 **Reglas:**
 - Botón eliminar título: deshabilitado si es el único título del grupo
@@ -248,10 +248,10 @@ Response 409: {error: "No se puede eliminar la última función del título"}
 
 **Imagen Referencia:**
 
-![UserListModal](./images/image-0132.png)
+![UserListModal](./images/image-0135.png)
 
 **Funcionalidad:**
-- Modal grande "Usuarios relacionados del Grupo [nombre]"
+- Modal "Usuarios por Grupo" con fila informativa mostrando "Grupo: [nombre]" y contador total de usuarios
 - Tabla con columnas:
   - RUT
   - Nombre
@@ -267,10 +267,10 @@ Response 200: [{rut, dv, nombreCompleto, vigenciaInicio, vigenciaFin}, ...]
 ```
 
 **Flujo:**
-1. Usuario click botón usuarios desde GroupSection
-2. Abre modal
+1. Usuario click en contador de usuarios (ej: "100") desde GroupSection
+2. Abre modal UserListModal
 3. Carga GET /grupos/{grupoId}/usuarios
-4. Renderiza tabla con datos
+4. Renderiza tabla con datos (usuarios reales, no duplicados)
 5. Botón "Exportar a Excel": genera archivo client-side con biblioteca (xlsx.js)
 6. Botón "Cerrar": cierra modal
 

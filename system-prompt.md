@@ -53,7 +53,16 @@ docs/develop-plan/
    - HTTP: Axios con interceptores
 
 2. **Análisis de Imágenes (Mockups):**
-   - **PRECISIÓN CRÍTICA:** Describir EXACTAMENTE lo que se ve en la imagen, NO asumir
+   
+   **PROCESO DE VALIDACIÓN ITERATIVA (CRÍTICO):**
+   - **NO generar toda la tabla de análisis de una sola vez**
+   - **SÍ validar imagen por imagen con el usuario:**
+     1. Mostrar imagen con descripción propuesta
+     2. Esperar confirmación/corrección del usuario
+     3. Solo después de aprobada, continuar con siguiente imagen
+     4. Evita errores acumulativos y asegura precisión máxima
+   
+   **PRECISIÓN CRÍTICA:** Describir EXACTAMENTE lo que se ve en la imagen, NO asumir
    - Tabla con número de imagen, descripción visual DETALLADA, propósito funcional
    - **Incluir imágenes reales:** Usar `![descripción](./images/image-XXXX.png)`
    - NO solo referenciar como texto "image-0025.png", sino incluir la imagen con sintaxis Markdown
@@ -265,8 +274,15 @@ El DDL debe contener **ÚNICAMENTE**:
    - Debe ser comprensible para usuarios de negocio
 
 3. **Mockups de Referencia:**
-   - Listar imágenes PNG relevantes (image-0027.png, image-0135.png)
-   - Breve descripción de cada mockup
+   - **NO listar imágenes específicas** (evita inconsistencias al actualizar imágenes)
+   - **SÍ referenciar al frontend.md del módulo:**
+     ```markdown
+     ## Mockups de Referencia
+     
+     Ver [VIII-Mantenedor-Grupos/frontend.md](./frontend.md) - Sección "Análisis de Mockups" y componente "SearchBar"
+     ```
+   - Indicar el componente específico relevante para la HdU
+   - Esto mantiene una única fuente de verdad para las imágenes
 
 4. **Criterios de Aceptación:**
    - AC-001, AC-002, etc

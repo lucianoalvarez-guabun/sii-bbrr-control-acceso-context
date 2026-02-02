@@ -289,6 +289,7 @@ docs/develop-plan/VIII-Mantenedor-Grupos/
 ├── HdU-006-Eliminar-Titulo.md
 ├── HdU-007-Agregar-Funcion.md
 ├── HdU-008-Eliminar-Funcion.md
+├── HdU-009-Ver-Usuarios-Grupo.md
 ├── DDL/
 │   ├── create-tables.sql (5 tablas, 2 secuencias, 7 índices)
 │   └── indexes.sql (índices de optimización)
@@ -328,6 +329,6 @@ docs/develop-plan/VIII-Mantenedor-Grupos/
 - [x] README.md con especificación completa
 - [ ] frontend.md (8 componentes React)
 - [ ] backend-apis.md (10 endpoints REST)
-- [ ] HdU-*.md (8 historias de usuario)
+- [ ] HdU-*.md (9 historias de usuario)
 - [ ] DDL/create-tables.sql
 - [ ] progress-log.md actualizado

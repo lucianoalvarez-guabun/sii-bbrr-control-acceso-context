@@ -15,8 +15,7 @@
 
 ## Mockups de Referencia
 
-- **image-0139.png**: Modal "Agregar Título" con input título y dropdown funciones múltiples
-- **image-0127.png**: Vista del grupo con títulos en acordeones colapsables
+Ver [VIII-Mantenedor-Grupos/frontend.md](./frontend.md) - Sección "Análisis de Mockups" y componente "AddTituloModal"
 
 ## Criterios de Aceptación
 
