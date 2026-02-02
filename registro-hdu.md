@@ -26,7 +26,14 @@ Mantener un registro centralizado de todas las HdU del proyecto con IDs únicos 
 ### Módulo V: Mantenedor de Usuarios Relacionados
 | ID | Archivo | Funcionalidad | Módulo | Estado |
 |----|---------|---------------|--------|--------|
-| HdU-009 | - | (Pendiente análisis) | V | 🔄 En desarrollo |
+| HdU-009 | HdU-009-Buscar-Usuario.md | Buscar usuario por RUT/nombre | V | ✅ Completado |
+| HdU-010 | HdU-010-Crear-Usuario-Interno.md | Crear usuario interno con validaciones | V | ✅ Completado |
+| HdU-011 | HdU-011-Crear-Usuario-Externo.md | Crear usuario externo con RUT empresa | V | ✅ Completado |
+| HdU-012 | HdU-012-Modificar-Usuario.md | Modificar datos generales usuario | V | ✅ Completado |
+| HdU-013 | HdU-013-Agregar-Cargo.md | Agregar cargo a usuario con vigencia | V | ✅ Completado |
+| HdU-014 | HdU-014-Eliminar-Cargo.md | Eliminar cargo de usuario | V | ✅ Completado |
+| HdU-015 | HdU-015-Agregar-Funcion.md | Agregar función a usuario | V | ✅ Completado |
+| HdU-016 | HdU-016-Eliminar-Funcion.md | Eliminar función de usuario | V | ✅ Completado |
 
 ### Módulo VI: Mantenedor de Unidades de Negocio
 | ID | Archivo | Funcionalidad | Módulo | Estado |
@@ -71,13 +78,13 @@ Mantener un registro centralizado de todas las HdU del proyecto con IDs únicos 
 ### Módulo XV: Servicios Distintas Arquitecturas
 | ID | Archivo | Funcionalidad | Módulo | Estado |
 |----|---------|---------------|--------|--------|
-| HdU-0XX | - | (Pendiente) | XV | ⏳ Pendiente |
+| HdU-0XX |8              | 0              | 8     |
+| **TOTAL** | **16**       | **0**          | **16** |
 
-## Estadísticas
-
-| Módulo | HdU Completadas | HdU Pendientes | Total |
-|--------|----------------|----------------|-------|
-| VIII   | 8              | 0              | 8     |
+## Notas
+- Última actualización: 02/02/2026
+- Próximo ID disponible: **HdU-017**
+- IDs reservados: 001-008 (Módulo VIII), 009-016 (Módulo V     | 8     |
 | V      | 0              | TBD            | TBD   |
 | **TOTAL** | **8**       | **TBD**        | **8** |
 
