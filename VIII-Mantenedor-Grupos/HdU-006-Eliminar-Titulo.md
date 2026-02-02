@@ -16,8 +16,6 @@
 ## Mockups de Referencia
 
 - **image-0127.png**: TitulosAccordion con botón eliminar (icono X o papelera)
-- **image-0034.png**: ConfirmDialog "¿Está seguro que desea eliminar...?"
-- **image-0027.png**: Alerta de éxito tras eliminación
 
 ## Criterios de Aceptación
 
@@ -64,10 +62,7 @@
    - "OT Reportes" (tituloId=45, orden=1) con 2 funciones
    - "OT Opciones para jefaturas" (tituloId=46, orden=2) con 3 funciones
 3. Usuario hace clic en botón eliminar (X) del título "OT Opciones para jefaturas"
-4. Sistema abre modal ConfirmDialog (image-0034):
-   - Icono advertencia
-   - Texto: "¿Está seguro que desea eliminar el título 'OT Opciones para jefaturas'? Se eliminarán todas las funciones asociadas (3). Esta acción no se puede deshacer."
-   - Botones: Cancelar, Eliminar
+4. Sistema abre modal de confirmación con mensaje: "¿Está seguro que desea eliminar el título 'OT Opciones para jefaturas'? Se eliminarán todas las funciones asociadas (3). Esta acción no se puede deshacer."
 5. Usuario hace clic en botón "Eliminar"
 6. Sistema cierra modal
 7. Sistema ejecuta DELETE `/acaj-ms/api/v1/12.345.678-9/grupos/123/titulos/46`
@@ -124,7 +119,7 @@
       }
     }
     ```
-14. Sistema muestra alerta verde "Título eliminado exitosamente" (image-0027)
+14. Sistema muestra alerta "Título eliminado exitosamente"
 15. Sistema remueve acordeón "OT Opciones para jefaturas" de la lista visual
 16. Sistema ahora muestra solo 1 título: "OT Reportes" (orden=1)
 17. NO se reordenan los TITU_ORDEN en BD (mantiene gaps: orden 1 existe, orden 2 vacío)

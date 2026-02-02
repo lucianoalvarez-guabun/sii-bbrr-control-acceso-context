@@ -16,7 +16,6 @@
 ## Mockups de Referencia
 
 - **Imagen 4 (inline)**: Formulario inline "Crear Grupo" expandido en pantalla principal
-- **image-0027.png**: Alerta de éxito "Registro guardado correctamente"
 - **image-0127.png**: Pantalla principal mostrando grupo recién creado
 
 ## Criterios de Aceptación
@@ -48,7 +47,7 @@
 
 **AC-008:** Si la creación es exitosa, el sistema debe:
 - Colapsar el formulario inline automáticamente
-- Mostrar alerta verde "Registro guardado correctamente" por 3 segundos (image-0027)
+- Mostrar alerta "Registro guardado correctamente"
 - Mostrar el nuevo grupo en el área de resultados (como si se hubiera buscado)
 - Limpiar los campos del formulario para próxima creación
 

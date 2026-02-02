@@ -17,7 +17,6 @@
 
 - **image-0139.png**: Modal "Agregar Título" con input título y dropdown funciones múltiples
 - **image-0127.png**: Vista del grupo con títulos en acordeones colapsables
-- **image-0027.png**: Alerta de éxito "Registro guardado correctamente"
 
 ## Criterios de Aceptación
 
@@ -146,7 +145,7 @@
     }
     ```
 18. Sistema cierra modal
-19. Sistema muestra alerta verde "Registro guardado correctamente" (image-0027)
+19. Sistema muestra alerta "Registro guardado correctamente"
 20. Sistema agrega nuevo acordeón "OT Opciones para jefaturas (3)" al final de la lista
 21. Usuario expande acordeón y visualiza 3 funciones: Función 1, Función 2, Función 3 (image-0127)
 

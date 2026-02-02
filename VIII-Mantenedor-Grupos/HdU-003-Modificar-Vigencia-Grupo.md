@@ -16,7 +16,6 @@
 ## Mockups de Referencia
 
 - **image-0127.png**: GroupSection mostrando toggle vigente (switch on/off)
-- **image-0027.png**: Alerta de éxito "Registro guardado correctamente"
 
 ## Criterios de Aceptación
 
@@ -87,7 +86,7 @@
      "nuevaVigencia": "N"
    }
    ```
-10. Sistema muestra alerta verde "Registro guardado correctamente" (image-0027)
+10. Sistema muestra alerta "Registro guardado correctamente"
 11. Sistema mantiene switch en estado OFF
 12. Grupo desaparece del dropdown de búsqueda (filtrado por vigente='S')
 

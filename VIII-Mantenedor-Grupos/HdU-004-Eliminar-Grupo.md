@@ -15,9 +15,7 @@
 
 ## Mockups de Referencia
 
-- **image-0034.png**: ConfirmDialog con advertencia "¿Está seguro que desea eliminar...?"
 - **image-0127.png**: GroupSection con botón papelera (eliminar)
-- **image-0027.png**: Alerta de éxito tras eliminación
 
 ## Criterios de Aceptación
 
@@ -66,10 +64,7 @@
 2. Sistema muestra GroupSection con cantidadUsuarios=0
 3. Sistema habilita botón papelera (rojo, clickeable)
 4. Usuario hace clic en botón papelera
-5. Sistema abre modal ConfirmDialog (image-0034):
-   - Icono advertencia
-   - Texto: "¿Está seguro que desea eliminar el grupo Sistema Test? Esta acción no se puede deshacer."
-   - Botones: Cancelar (gris), Eliminar (rojo)
+5. Sistema abre modal de confirmación con mensaje: "¿Está seguro que desea eliminar el grupo Sistema Test? Esta acción no se puede deshacer."
 6. Usuario hace clic en botón "Eliminar"
 7. Sistema cierra modal
 8. Sistema ejecuta DELETE `/acaj-ms/api/v1/12.345.678-9/grupos/123`
@@ -113,7 +108,7 @@
       }
     }
     ```
-13. Sistema muestra alerta verde "Grupo eliminado exitosamente" (image-0027)
+13. Sistema muestra alerta "Grupo eliminado exitosamente"
 14. Sistema remueve grupo de lista visual
 15. Sistema limpia área de resultados mostrando mensaje "Seleccione un grupo para ver detalles"
 

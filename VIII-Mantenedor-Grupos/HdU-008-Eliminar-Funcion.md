@@ -16,8 +16,6 @@
 ## Mockups de Referencia
 
 - **image-0127.png**: Lista de funciones con botón eliminar (X) por función
-- **image-0034.png**: ConfirmDialog "¿Está seguro que desea eliminar...?"
-- **image-0027.png**: Alerta de éxito tras eliminación
 
 ## Criterios de Aceptación
 
@@ -66,10 +64,7 @@
    - "Función 2" (funcionId=16) con botón X habilitado
    - "Función 3" (funcionId=19) con botón X habilitado
 4. Usuario hace clic en botón X de "Función 2"
-5. Sistema abre modal ConfirmDialog (image-0034):
-   - Icono advertencia
-   - Texto: "¿Está seguro que desea eliminar la función 'Función 2' del título 'OT Reportes'? Esta acción no se puede deshacer."
-   - Botones: Cancelar, Eliminar
+5. Sistema abre modal de confirmación con mensaje: "¿Está seguro que desea eliminar la función 'Función 2' del título 'OT Reportes'? Esta acción no se puede deshacer."
 6. Usuario hace clic en botón "Eliminar"
 7. Sistema cierra modal
 8. Sistema ejecuta DELETE `/acaj-ms/api/v1/12.345.678-9/grupos/123/titulos/45/funciones/16`
@@ -107,7 +102,7 @@
       "mensaje": "Función eliminada exitosamente"
     }
     ```
-13. Sistema muestra alerta verde "Función eliminada exitosamente" (image-0027)
+13. Sistema muestra alerta "Función eliminada exitosamente"
 14. Sistema remueve "Función 2" de la lista visual
 15. Sistema actualiza contador: "OT Reportes (2)" (antes era 3)
 16. Funciones restantes: "csdfcasc", "Función 3"

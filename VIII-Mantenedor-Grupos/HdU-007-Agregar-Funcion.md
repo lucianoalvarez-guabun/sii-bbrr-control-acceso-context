@@ -17,7 +17,6 @@
 
 - **image-0143.png**: Modal "Agregar Función" con título read-only y dropdown función
 - **image-0127.png**: Vista del título expandido mostrando funciones
-- **image-0027.png**: Alerta de éxito "Registro guardado correctamente"
 
 ## Criterios de Aceptación
 
@@ -120,7 +119,7 @@
     }
     ```
 17. Sistema cierra modal
-18. Sistema muestra alerta verde "Registro guardado correctamente" (image-0027)
+18. Sistema muestra alerta "Registro guardado correctamente"
 19. Sistema agrega "Función 3" al final de la lista de funciones en el acordeón
 20. Sistema actualiza contador de funciones: "OT Reportes (3)" (image-0127)
 
