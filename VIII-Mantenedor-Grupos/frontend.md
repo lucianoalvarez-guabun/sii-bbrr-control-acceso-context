@@ -388,7 +388,7 @@ Response 201: {funcionesAgregadas: 2}
 3. Usuario ingresa nombre grupo/título y selecciona función
 4. Click ✓
 5. Ejecuta POST /grupos (transacción: grupo + primer título + función)
-6. Si 201: Colapsa form, recarga dropdown, muestra SuccessAlert
+6. Si 201: Colapsa form, recarga dropdown, mostrar alerta "Grupo creado correctamente"
 7. Nuevo grupo aparece seleccionado automáticamente
 
 ### 4.3 Flujo: Agregar Título con Funciones
@@ -398,7 +398,7 @@ Response 201: {funcionesAgregadas: 2}
 3. Usuario ingresa nombre título y selecciona 1+ funciones
 4. Click "Agregar"
 5. Ejecuta POST /grupos/{grupoId}/titulos
-6. Si 201: Cierra modal, refresca GET /grupos/{grupoId}, muestra SuccessAlert
+6. Si 201: Cierra modal, refresca GET /grupos/{grupoId}, mostrar alerta "Título agregado correctamente"
 7. Nuevo título aparece expandido en la lista
 
 ### 4.4 Flujo: Eliminar Título (CASCADE funciones)
@@ -407,7 +407,7 @@ Response 201: {funcionesAgregadas: 2}
 2. Abre ConfirmDialog
 3. Si Aceptar: DELETE /titulos/{tituloId}
 4. Si 200: Refresca grupo (funciones eliminadas automáticamente)
-5. Muestra SuccessAlert
+5. Mostrar alerta "Título eliminado correctamente"
 
 ### 4.5 Flujo: Cambiar Vigencia Grupo
 
