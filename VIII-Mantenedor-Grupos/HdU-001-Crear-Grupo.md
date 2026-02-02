@@ -108,245 +108,30 @@
 
 ## Notas Técnicas
 
-### Frontend (React)
+**API Consumida:**  
+- POST /acaj-ms/api/v1/{rut}-{dv}/grupos/crear
 
-**Componente:** CreateGroupForm (inline, NO modal)  
-**Redux Action:** createGrupo (async thunk)  
-**Validación:** maxLength 100 para nombre/título, required para función  
+**Validaciones:**
+- Nombre del grupo: obligatorio, max 100 caracteres, no duplicado (case-insensitive)
+- Nombre del título: obligatorio, max 100 caracteres
+- Función: obligatoria, debe existir y estar vigente
+- Usuario: debe tener perfil Administrador Nacional
 
-**Estado local del formulario:**
-```javascript
-const [visible, setVisible] = useState(false); // Controla expansión/colapso
-const [form, setForm] = useState({
-  nombre: '',
-  titulo: '',
-  funcionId: null
-});
-
-const [errors, setErrors] = useState({
-  nombre: false,
-  titulo: false,
-  funcionId: false
-});
-```
-
-**Validación frontend:**
-```javascript
-const validate = () => {
-  const newErrors = {
-    nombre: !form.nombre || form.nombre.length > 100,
-    titulo: !form.titulo || form.titulo.length > 100,
-    funcionId: !form.funcionId
-  };
-  setErrors(newErrors);
-  return !Object.values(newErrors).some(Boolean);
-};
-```
-
-### Backend (Spring Boot)
-
-**Endpoint:** POST `/acaj-ms/api/v1/{rut}-{dv}/grupos/crear`
-
-**DTO Request:**
-```java
-public class CreateGrupoRequest {
-    @NotBlank(message = "Nombre del grupo es obligatorio")
-    @Size(max = 100, message = "Nombre del grupo no puede exceder 100 caracteres")
-    private String nombre;
-    
-    @NotBlank(message = "Nombre del título es obligatorio")
-    @Size(max = 100, message = "Nombre del título no puede exceder 100 caracteres")
-    private String titulo;
-    
-    @NotNull(message = "Función es obligatoria")
-    private Long funcionId;
-}
-```
-
-**Validación backend:**
-```java
-// 1. Verificar nombre duplicado
-boolean exists = grupoRepository.existsByNombreIgnoreCase(request.getNombre());
-if (exists) {
-    throw new ConflictException("El nombre del grupo ya existe. Ingrese un nombre diferente.");
-}
-
-// 2. Verificar función vigente
-Funcion funcion = funcionRepository.findById(request.getFuncionId())
-    .orElseThrow(() -> new NotFoundException("Función no existe"));
-    
-if (!"S".equals(funcion.getVigente())) {
-    throw new BadRequestException("Función no vigente");
-}
-
-// 3. Verificar perfil administrador
-if (!hasRole("ADMIN_NACIONAL")) {
-    throw new ForbiddenException("Sin permisos para crear grupos");
-}
-```
-
-**Lógica de transacción:**
-```java
-@Transactional
-public CreateGrupoResponse crear(String rut, CreateGrupoRequest request) {
-    // 1. Crear grupo
-    Grupo grupo = Grupo.builder()
-        .id(grupoSequence.nextVal())
-        .nombre(request.getNombre())
-        .vigente("S")
-        .fechaCreacion(LocalDate.now())
-        .usuarioCreacion(rut)
-        .build();
-    grupoRepository.save(grupo);
-    
-    // 2. Crear título
-    Titulo titulo = Titulo.builder()
-        .id(tituloSequence.nextVal())
-        .grupoId(grupo.getId())
-        .nombre(request.getTitulo())
-        .orden(1)
-        .fechaCreacion(LocalDate.now())
-        .usuarioCreacion(rut)
-        .build();
-    tituloRepository.save(titulo);
-    
-    // 3. Crear relación título-función
-    TituloFuncion tituloFuncion = TituloFuncion.builder()
-        .tituloId(titulo.getId())
-        .funcionId(request.getFuncionId())
-        .fechaCreacion(LocalDate.now())
-        .usuarioCreacion(rut)
-        .build();
-    tituloFuncionRepository.save(tituloFuncion);
-    
-    // 4. Auditoría
-    auditoriaService.registrar("BR_GRUPOS", "INSERT", grupo.getId(), 
-        null, grupo.toJson(), rut, "Se creó el Grupo " + grupo.getNombre());
-    
-    return CreateGrupoResponse.builder()
-        .grupoId(grupo.getId())
-        .codigo(grupo.getId())
-        .nombre(grupo.getNombre())
-        .vigente("S")
-        .mensaje("Grupo creado exitosamente")
-        .build();
-}
-```
-
-### Base de Datos
-
-**Tablas afectadas:**
-- BR_GRUPOS (INSERT 1 registro)
-- BR_TITULOS (INSERT 1 registro)
-- BR_TITULOS_FUNCIONES (INSERT 1 registro)
-- BR_AUDITORIA_CAMBIOS (INSERT 1 registro)
-
-**Query de verificación de duplicados:**
-```sql
-SELECT COUNT(*) 
-FROM BR_GRUPOS 
-WHERE UPPER(GRUP_NOMBRE) = UPPER(:nombre);
-```
+**Tablas BD (operación INSERT):**
+- BR_GRUPOS: registro del grupo con vigencia='S'
+- BR_TITULOS: registro del título con orden=1
+- BR_TITULOS_FUNCIONES: relación título-función
+- BR_AUDITORIA_CAMBIOS: registro de auditoría
 
 **Secuencias utilizadas:**
-- SEQ_GRUPO_ID → genera GRUP_ID
-- SEQ_TITULO_ID → genera TITU_ID
+- SEQ_GRUPO_ID (genera ID del grupo)
+- SEQ_TITULO_ID (genera ID del título)
 
 ## Dependencias
 
-**Funcionales:**
-- Módulo VII (BR_FUNCIONES debe existir con funciones vigentes)
+- Módulo VII (BR_FUNCIONES debe tener funciones vigentes disponibles)
 - Módulo V (BR_RELACIONADOS para usuario creador)
 - Sistema de autenticación (JWT con RUT en claims)
-
-**Técnicas:**
-- Redux Toolkit (state management)
-- Ant Design (Modal, Input, Select, Alert)
-- Axios (HTTP client)
-- Spring Boot Validation
-- Oracle 19c (sequences, transactions)
-
-## Testing
-
-### Frontend (Vitest + React Testing Library)
-
-```javascript
-describe('CreateGroupForm', () => {
-  it('debe mostrar errores si campos obligatorios están vacíos', () => {
-    render(<CreateGroupForm visible={true} />);
-    
-    fireEvent.click(screen.getByRole('button', { name: /✓/ }));
-    
-    expect(screen.getByText(/Nombre del grupo es obligatorio/)).toBeInTheDocument();
-    expect(screen.getByText(/Nombre del título es obligatorio/)).toBeInTheDocument();
-    expect(screen.getByText(/Función es obligatoria/)).toBeInTheDocument();
-  });
-  
-  it('debe crear grupo exitosamente con datos válidos', async () => {
-    const mockCreate = vi.fn().mockResolvedValue({ grupoId: 123 });
-    
-    render(<CreateGroupForm visible={true} onCreate={mockCreate} />);
-    
-    fireEvent.change(screen.getByLabelText(/nombre del Grupo/), { 
-      target: { value: 'Sistema OT' } 
-    });
-    fireEvent.change(screen.getByLabelText(/nombre del Título/), { 
-      target: { value: 'Reportes' } 
-    });
-    fireEvent.change(screen.getByLabelText(/Seleccione Función/), { 
-      target: { value: 15 } 
-    });
-    
-    fireEvent.click(screen.getByRole('button', { name: /✓/ }));
-    
-    await waitFor(() => {
-      expect(mockCreate).toHaveBeenCalledWith({
-        nombre: 'Sistema OT',
-        titulo: 'Reportes',
-        funcionId: 15
-      });
-    });
-  });
-});
-```
-
-### Backend (JUnit 5 + Mockito)
-
-```java
-@Test
-void crear_conNombreDuplicado_debeLanzarConflictException() {
-    // Arrange
-    CreateGrupoRequest request = new CreateGrupoRequest("Sistema OT", "Reportes", 15L);
-    when(grupoRepository.existsByNombreIgnoreCase("Sistema OT")).thenReturn(true);
-    
-    // Act & Assert
-    assertThrows(ConflictException.class, () -> {
-        grupoService.crear("12345678-9", request);
-    });
-    
-    verify(grupoRepository, never()).save(any());
-}
-
-@Test
-void crear_conDatosValidos_debeCrearGrupoTituloYFuncion() {
-    // Arrange
-    CreateGrupoRequest request = new CreateGrupoRequest("Sistema OT", "Reportes", 15L);
-    when(grupoRepository.existsByNombreIgnoreCase(anyString())).thenReturn(false);
-    when(funcionRepository.findById(15L)).thenReturn(Optional.of(funcionVigente));
-    when(grupoSequence.nextVal()).thenReturn(123L);
-    when(tituloSequence.nextVal()).thenReturn(45L);
-    
-    // Act
-    CreateGrupoResponse response = grupoService.crear("12345678-9", request);
-    
-    // Assert
-    assertEquals(123L, response.getGrupoId());
-    verify(grupoRepository, times(1)).save(any(Grupo.class));
-    verify(tituloRepository, times(1)).save(any(Titulo.class));
-    verify(tituloFuncionRepository, times(1)).save(any(TituloFuncion.class));
-    verify(auditoriaService, times(1)).registrar(eq("BR_GRUPOS"), eq("INSERT"), eq(123L), any(), any(), any(), any());
-}
-```
 
 ## Glosario
 

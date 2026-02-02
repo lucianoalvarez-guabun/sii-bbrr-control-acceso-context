@@ -176,309 +176,33 @@
 
 ## Notas Técnicas
 
-### Frontend (React)
+**API Consumida:**  
+- POST /acaj-ms/api/v1/{rut}-{dv}/grupos/{grupoId}/titulos
 
-**Componente:** AddTituloModal
+**Validaciones:**
+- Nombre del título: obligatorio, max 100 caracteres
+- Funciones: al menos 1 función requerida (permite selección múltiple)
+- Funciones seleccionadas: deben existir y estar vigentes
+- Grupo: debe existir
 
-**Estado local:**
-```jsx
-const AddTituloModal = ({ visible, grupoId, onClose }) => {
-  const dispatch = useDispatch();
-  const [form, setForm] = useState({
-    titulo: '',
-    funciones: []
-  });
-  const [errors, setErrors] = useState({});
-  const [funcionesVigentes, setFuncionesVigentes] = useState([]);
-  
-  useEffect(() => {
-    if (visible) {
-      // Cargar funciones vigentes
-      dispatch(fetchFuncionesVigentes()).then(data => {
-        setFuncionesVigentes(data.payload);
-      });
-    }
-  }, [visible, dispatch]);
-  
-  const validate = () => {
-    const newErrors = {};
-    
-    if (!form.titulo || form.titulo.trim() === '') {
-      newErrors.titulo = 'Nombre del título es obligatorio';
-    }
-    if (form.titulo.length > 100) {
-      newErrors.titulo = 'Nombre del título no puede exceder 100 caracteres';
-    }
-    if (form.funciones.length === 0) {
-      newErrors.funciones = 'Debe seleccionar al menos una función';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-  
-  const handleSubmit = async () => {
-    if (!validate()) return;
-    
-    try {
-      await dispatch(addTitulo({ 
-        grupoId, 
-        titulo: form.titulo, 
-        funciones: form.funciones 
-      })).unwrap();
-      
-      message.success('Registro guardado correctamente', 3);
-      setForm({ titulo: '', funciones: [] });
-      onClose();
-    } catch (error) {
-      message.error(error || 'Error al agregar título. Intente nuevamente.', 5);
-    }
-  };
-  
-  return (
-    <Modal
-      open={visible}
-      title="Agregar Título"
-      onCancel={onClose}
-      footer={[
-        <Button key="cancel" onClick={onClose}>X</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>✓</Button>
-      ]}
-    >
-      <Form layout="vertical">
-        <Form.Item
-          label="Ingrese nombre del Título"
-          validateStatus={errors.titulo ? 'error' : ''}
-          help={errors.titulo}
-        >
-          <Input
-            maxLength={100}
-            value={form.titulo}
-            onChange={e => setForm({ ...form, titulo: e.target.value })}
-          />
-        </Form.Item>
-        
-        <Form.Item
-          label="Seleccione Función"
-          validateStatus={errors.funciones ? 'error' : ''}
-          help={errors.funciones}
-        >
-          <Select
-            mode="multiple"
-            placeholder="Seleccione una o más funciones"
-            value={form.funciones}
-            onChange={funciones => setForm({ ...form, funciones })}
-          >
-            {funcionesVigentes.map(func => (
-              <Select.Option key={func.funcionId} value={func.funcionId}>
-                {func.nombre}
-              </Select.Option>
-            ))}
-          </Select>
-          
-          {form.funciones.length > 0 && (
-            <div style={{ marginTop: 8, color: '#1890ff' }}>
-              {form.funciones.length} funciones seleccionadas
-            </div>
-          )}
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
-};
-```
+**Tablas BD (operación INSERT):**
+- BR_TITULOS: registro del título con orden auto-calculado (MAX+1)
+- BR_TITULOS_FUNCIONES: N registros (uno por cada función seleccionada)
+- BR_AUDITORIA_CAMBIOS: registro de auditoría
 
-**Redux Async Thunk:**
-```javascript
-export const addTitulo = createAsyncThunk(
-  'grupos/addTitulo',
-  async ({ grupoId, titulo, funciones }, { getState, rejectWithValue }) => {
-    try {
-      const state = getState();
-      const { rut, dv } = state.auth.user;
-      
-      const response = await axios.post(
-        `/acaj-ms/api/v1/${rut}-${dv}/grupos/${grupoId}/titulos`,
-        { titulo, funciones }
-      );
-      
-      return { grupoId, tituloId: response.data.tituloId, orden: response.data.orden };
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.mensaje || 'Error al agregar título'
-      );
-    }
-  }
-);
-```
+**Orden automático:**
+- Se calcula como MAX(TITU_ORDEN) + 1 del grupo
+- Nuevo título siempre se agrega al final de la lista
 
-### Backend (Spring Boot)
+**Secuencias utilizadas:**
+- SEQ_TITULO_ID (genera ID del título)
 
-**Endpoint:** POST `/acaj-ms/api/v1/{rut}-{dv}/grupos/{grupoId}/titulos`
+## Dependencias
 
-**DTO Request:**
-```java
-public class AddTituloRequest {
-    @NotBlank(message = "Nombre del título es obligatorio")
-    @Size(max = 100, message = "Nombre del título no puede exceder 100 caracteres")
-    private String titulo;
-    
-    @NotEmpty(message = "Debe seleccionar al menos una función")
-    private List<Long> funciones;
-}
-```
-
-**Service:**
-```java
-@Transactional
-public AddTituloResponse addTitulo(Long grupoId, AddTituloRequest request, String rutUsuario) {
-    // 1. Verificar que grupo existe
-    Grupo grupo = grupoRepository.findById(grupoId)
-        .orElseThrow(() -> new NotFoundException("Grupo ID " + grupoId + " no existe"));
-    
-    // 2. Verificar que todas las funciones existen y están vigentes
-    for (Long funcionId : request.getFunciones()) {
-        Funcion funcion = funcionRepository.findById(funcionId)
-            .orElseThrow(() -> new NotFoundException("Función ID " + funcionId + " no existe"));
-        
-        if (!"S".equals(funcion.getVigente())) {
-            throw new BadRequestException("Función ID " + funcionId + " no vigente");
-        }
-    }
-    
-    // 3. Calcular orden (MAX + 1)
-    Integer maxOrden = tituloRepository.findMaxOrdenByGrupoId(grupoId);
-    int nuevoOrden = (maxOrden == null ? 0 : maxOrden) + 1;
-    
-    // 4. Crear título
-    Titulo titulo = Titulo.builder()
-        .id(tituloSequence.nextVal())
-        .grupoId(grupoId)
-        .nombre(request.getTitulo())
-        .orden(nuevoOrden)
-        .fechaCreacion(LocalDate.now())
-        .usuarioCreacion(rutUsuario)
-        .build();
-    tituloRepository.save(titulo);
-    
-    // 5. Crear relaciones título-funciones (batch)
-    List<TituloFuncion> tituloFunciones = request.getFunciones().stream()
-        .map(funcionId -> TituloFuncion.builder()
-            .tituloId(titulo.getId())
-            .funcionId(funcionId)
-            .fechaCreacion(LocalDate.now())
-            .usuarioCreacion(rutUsuario)
-            .build())
-        .collect(Collectors.toList());
-    
-    tituloFuncionRepository.saveAll(tituloFunciones);
-    
-    // 6. Auditoría
-    auditoriaService.registrar(
-        "BR_TITULOS",
-        "INSERT",
-        titulo.getId(),
-        null,
-        Map.of(
-            "nombre", titulo.getNombre(),
-            "grupoId", grupoId,
-            "funciones", request.getFunciones()
-        ),
-        rutUsuario,
-        "Se agregó el título " + titulo.getNombre() + 
-        " al grupo " + grupo.getNombre() + 
-        " con " + request.getFunciones().size() + " funciones"
-    );
-    
-    return AddTituloResponse.builder()
-        .tituloId(titulo.getId())
-        .orden(nuevoOrden)
-        .mensaje("Título agregado exitosamente")
-        .build();
-}
-```
-
-### Base de Datos
-
-**Query calcular orden:**
-```sql
-SELECT COALESCE(MAX(TITU_ORDEN), 0) + 1
-FROM BR_TITULOS
-WHERE TITU_GRUP_ID = :grupoId;
-```
-
-**INSERT título:**
-```sql
-INSERT INTO BR_TITULOS (
-  TITU_ID, TITU_GRUP_ID, TITU_NOMBRE, TITU_ORDEN, 
-  TITU_FECHA_CREACION, TITU_USUARIO_CREACION
-) VALUES (
-  SEQ_TITULO_ID.NEXTVAL, :grupoId, :titulo, :orden, 
-  SYSDATE, :rutUsuario
-) RETURNING TITU_ID INTO :tituloId;
-```
-
-**INSERT funciones (batch):**
-```sql
-INSERT ALL
-  INTO BR_TITULOS_FUNCIONES (TIFU_TITU_ID, TIFU_FUNC_ID, TIFU_FECHA_CREACION, TIFU_USUARIO_CREACION)
-    VALUES (:tituloId, :funcionId1, SYSDATE, :rutUsuario)
-  INTO BR_TITULOS_FUNCIONES (TIFU_TITU_ID, TIFU_FUNC_ID, TIFU_FECHA_CREACION, TIFU_USUARIO_CREACION)
-    VALUES (:tituloId, :funcionId2, SYSDATE, :rutUsuario)
-  INTO BR_TITULOS_FUNCIONES (TIFU_TITU_ID, TIFU_FUNC_ID, TIFU_FECHA_CREACION, TIFU_USUARIO_CREACION)
-    VALUES (:tituloId, :funcionId3, SYSDATE, :rutUsuario)
-SELECT * FROM DUAL;
-```
-
-## Testing
-
-### Frontend
-
-```javascript
-describe('AddTituloModal', () => {
-  it('debe validar que al menos una función esté seleccionada', () => {
-    render(<AddTituloModal visible={true} grupoId={123} />);
-    
-    fireEvent.change(screen.getByLabelText(/nombre del Título/), {
-      target: { value: 'Nuevo Título' }
-    });
-    
-    fireEvent.click(screen.getByRole('button', { name: /✓/ }));
-    
-    expect(screen.getByText(/Debe seleccionar al menos una función/)).toBeInTheDocument();
-  });
-  
-  it('debe permitir selección múltiple de funciones', async () => {
-    render(<AddTituloModal visible={true} grupoId={123} />);
-    
-    const select = screen.getByLabelText(/Seleccione Función/);
-    
-    fireEvent.change(select, { target: { value: [17, 18, 19] } });
-    
-    expect(screen.getByText(/3 funciones seleccionadas/)).toBeInTheDocument();
-  });
-});
-```
-
-### Backend
-
-```java
-@Test
-void addTitulo_conMultiplesFunciones_debeCrearTituloYRelaciones() {
-    AddTituloRequest request = new AddTituloRequest("OT Opciones", List.of(17L, 18L, 19L));
-    when(grupoRepository.findById(123L)).thenReturn(Optional.of(grupo));
-    when(funcionRepository.findById(anyLong())).thenReturn(Optional.of(funcionVigente));
-    when(tituloRepository.findMaxOrdenByGrupoId(123L)).thenReturn(1);
-    when(tituloSequence.nextVal()).thenReturn(46L);
-    
-    AddTituloResponse response = grupoService.addTitulo(123L, request, "12345678-9");
-    
-    assertEquals(46L, response.getTituloId());
-    assertEquals(2, response.getOrden());
-    verify(tituloRepository, times(1)).save(any(Titulo.class));
-    verify(tituloFuncionRepository, times(1)).saveAll(argThat(list -> list.size() == 3));
-}
-```
+- BR_GRUPOS (grupo padre debe existir)
+- BR_FUNCIONES (funciones vigentes para selección)
+- BR_TITULOS (tabla de títulos)
+- BR_TITULOS_FUNCIONES (relación M:N)
 
 ## Glosario
 

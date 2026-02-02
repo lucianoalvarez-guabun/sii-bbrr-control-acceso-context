@@ -53,8 +53,25 @@ docs/develop-plan/
    - HTTP: Axios con interceptores
 
 2. **Análisis de Imágenes (Mockups):**
-   - Tabla con número de imagen, descripción visual, propósito funcional
+   - **PRECISIÓN CRÍTICA:** Describir EXACTAMENTE lo que se ve en la imagen, NO asumir
+   - Tabla con número de imagen, descripción visual DETALLADA, propósito funcional
+   - **Incluir imágenes reales:** Usar `![descripción](./images/image-XXXX.png)`
+   - NO solo referenciar como texto "image-0025.png", sino incluir la imagen con sintaxis Markdown
    - Identificar componentes visuales (SearchBar, Card, Modal, Form, etc)
+   - **Ejemplo descripción CORRECTA (detallada):**
+     - ❌ "Pantalla con búsqueda de usuario"
+     - ✅ "Header verde 'Control de Acceso' con logo puerta izq, info usuario derecha (RUT 15000000-1), tabs horizontal: Usuario relacionado (activa), Unidad de negocio, Funciones, Mantenedores (dropdown). Debajo: SearchBar con input 'Ingrese RUT:', botón lupa, botón verde 'Agregar', icono reloj historial"
+   - **INCLUIR en secciones de componentes:**
+     ```markdown
+     ### 2.2 SearchBar Component
+     
+     **Imagen Referencia:**
+     
+     ![SearchBar inicial](./images/image-0027.png)
+     
+     **Funcionalidad:**
+     - Input RUT...
+     ```
    - NO escribir código Vue, solo describir QUÉ se ve y QUÉ hace
 
 3. **Mapeo Componentes → APIs:**
@@ -63,6 +80,9 @@ docs/develop-plan/
 
 4. **Flujos de Usuario:**
    - Secuencia paso a paso de interacciones
+   - **INCLUIR imágenes de pantallas principales** (SearchBar, Cards, Forms, Tablas)
+   - **NO incluir imágenes de alertas/modales genéricos** (SuccessAlert, ErrorAlert, ConfirmDialog)
+   - Solo MENCIONAR mensajes específicos: "mostrar alerta: Cargo eliminado correctamente"
    - Validaciones frontend (formato, obligatorios, rangos)
    - Estados de loading, error, éxito
    - Navegación entre vistas
@@ -75,12 +95,14 @@ docs/develop-plan/
 **LO QUE NO DEBE INCLUIR:**
 - ❌ Código Vue completo (script setup, template, style)
 - ❌ Implementación de validadores o composables
-- ❌ Configuración de Vuex store detallada
+- ❌ Configuración de Vuex/Pinia/Redux store (acciones, mutations, getters)
+- ❌ Especificaciones de "Estado Global" o "Estado Requerido" con código JavaScript
 - ❌ Configuración de Axios interceptors
 - ❌ Diagramas ASCII de layouts
 - ❌ CSS o estilos específicos
+- ❌ **Emojis** (usar texto plano solamente)
 
-**OBJETIVO:** Que un frontend developer entienda QUÉ construir, QUÉ APIs consumir y QUÉ flujos implementar, sin prescribir CÓMO escribir el código.
+**OBJETIVO:** Que un frontend developer entienda QUÉ construir, QUÉ APIs consumir y QUÉ flujos implementar, sin prescribir CÓMO escribir el código o gestionar el estado.
 
 **ANÁLISIS CONTEXTUAL DE IMÁGENES (CRÍTICO):**
 
@@ -108,11 +130,13 @@ Especificación dice: "El sistema despliega información del usuario... imagen s
 
 - ❌ **NO usar diagramas ASCII** para especificar formularios o UI
 - ❌ **NO usar tablas ASCII** para describir campos o layouts
+- ❌ **NO usar emojis** en documentación técnica
 - ✅ **SÍ usar imágenes PNG** del mockup de requerimientos
-  - Las imágenes PNG están en la carpeta del módulo: `./image-XXXX.png`
+  - Las imágenes PNG están en la carpeta del módulo: `./image-XXXX.png` o `./images/image-XXXX.png`
   - Cada imagen representa una vista o formulario específico
   - ANTES de referenciar, analizar contexto en requerimientos.md
-  - Referenciar como: `![Mockup: Pantalla de Búsqueda](./image-0027.png)` (nombre consistente con análisis)
+  - **Incluir imagen real con Markdown:** `![Mockup: Pantalla de Búsqueda](./image-0027.png)` (nombre consistente con análisis)
+  - **NO solo texto:** Evitar referenciar como "image-0027.png" sin incluir la imagen
   - Las imágenes son la FUENTE DE VERDAD para diseño y disposición de componentes
 
 **IMPORTANTE - CAMPOS Y ATRIBUTOS:**
@@ -225,18 +249,88 @@ El DDL debe contener **ÚNICAMENTE**:
    - Índices optimizados para búsquedas frecuentes
 
 ### HdU-*.md
-- Formato: Historias de Usuario
-- Actor, acción, resultado esperado
-- Criterios de aceptación (AC)
-- Flujos principales y alternativos
-- Notas técnicas
-- Dependencias
-- Riesgos
+
+**ENFOQUE:** Historias de Usuario funcionales, NO especificaciones técnicas.
+
+**CONTENIDO REQUERIDO:**
+
+1. **Información General:**
+   - ID (HdU-001, HdU-002, etc)
+   - Módulo
+   - Prioridad (Alta, Media, Baja)
+   - Estimación (puntos de historia)
+
+2. **Historia de Usuario:**
+   - Formato: Como [actor], Quiero [acción], Para [beneficio]
+   - Debe ser comprensible para usuarios de negocio
+
+3. **Mockups de Referencia:**
+   - Listar imágenes PNG relevantes (image-0027.png, image-0135.png)
+   - Breve descripción de cada mockup
+
+4. **Criterios de Aceptación:**
+   - AC-001, AC-002, etc
+   - Comportamiento esperado del sistema
+   - Validaciones de negocio (NO implementación técnica)
+   - Mensajes de error/éxito
+   - Estados del sistema
+
+5. **Flujos Principales:**
+   - Secuencia paso a paso desde perspectiva del usuario
+   - **INCLUIR IMÁGENES VISUALES** en cada flujo usando `![descripción](./images/image-XXXX.png)`
+   - Mostrar pantallas ANTES de describir acciones sobre ellas
+   - **PROHIBIDO incluir imágenes de alertas/modales genéricos:**
+     - ❌ NO incluir imágenes de SuccessAlert, ErrorAlert, ConfirmDialog
+     - ❌ NO incluir imágenes de mensajes "Registro guardado correctamente"
+     - ✅ SÍ usar imágenes de pantallas principales (SearchBar, Cards, Forms, Tablas)
+     - ✅ SÍ indicar mensajes específicos en TEXTO: "mostrar alerta: Usuario eliminado correctamente"
+   - Ejemplo CORRECTO:
+     ```markdown
+     1. Usuario abre pantalla inicial
+     2. Sistema muestra SearchBar vacío:
+     
+     ![SearchBar inicial](./images/image-0027.png)
+     
+     3. Usuario ingresa RUT...
+     4. Usuario presiona botón lupa
+     5. Sistema muestra resultado:
+     
+     ![Usuario encontrado](./images/image-0025.png)
+     
+     6. Usuario hace clic en eliminar
+     7. Sistema muestra alerta "Usuario eliminado correctamente"
+     ```
+   - Flujo principal (happy path)
+   - Flujos alternativos (errores, cancelaciones)
+   - NO incluir código, solo acciones del usuario y respuestas del sistema con imágenes de referencia
+
+6. **Notas Técnicas (Descriptivas):**
+   - API consumida (endpoint, método HTTP)
+   - Validaciones backend (descripción, NO código)
+   - Tablas BD afectadas (operación: INSERT/UPDATE/DELETE)
+   - Secuencias utilizadas (si aplica)
+
+7. **Dependencias:**
+   - Funcionales solamente (otros módulos, datos maestros)
+
+8. **Glosario:**
+   - Definiciones de términos de negocio
+
+**LO QUE NO DEBE INCLUIR:**
+- ❌ **Código fuente** (JavaScript, Java, SQL, etc)
+- ❌ **Bloques de código** (```javascript, ```java, ```sql)
+- ❌ **Implementación técnica** (funciones, clases, queries)
+- ❌ **Configuraciones** (Redux, Spring Boot, DTO)
+- ❌ **Tests** (Vitest, JUnit, Mockito)
+- ❌ **Diagramas ASCII** para describir procesos o campos
+- ❌ **Tablas ASCII** para listar campos o validaciones
+- ❌ **Referencias técnicas específicas** (librerías, frameworks)
+- ❌ **Emojis**
+
+**OBJETIVO:** Que un analista de negocio o PO entienda QUÉ hace la funcionalidad, sin necesitar conocimientos técnicos.
 
 **RESTRICCIÓN - DOCUMENTACIÓN EN HdU:**
 
-- ❌ **NO usar diagramas ASCII** para describir procesos o campos
-- ❌ **NO usar tablas ASCII** para listar campos o validaciones
 - ✅ **SÍ usar imágenes PNG** del mockup cuando sea relevante
 - ✅ **SÍ referenciar backend-apis.md** para detalles de campos/validaciones
 - **Campos en Criterios de Aceptación:**

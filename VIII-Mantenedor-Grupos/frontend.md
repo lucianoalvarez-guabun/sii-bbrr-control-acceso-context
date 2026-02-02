@@ -9,14 +9,14 @@ Vue 3 + Composition API | Bootstrap 5.2 | Vuex 4.1 | Axios | acaj-intra-ui
 
 | # | Imagen | Descripción Visual | Componente Identificado | Propósito Funcional |
 |---|--------|-------------------|------------------------|---------------------|
-| 1 | image-0135.png | Header con dropdown "Seleccione grupo", toggle "Vigente" (azul/gris), icono lupa para buscar | SearchBar | Búsqueda/filtro de grupos. Dropdown lista todos los grupos, toggle filtra por vigencia. |
-| 2 | image-0127.png | Pantalla principal con grupo expandido "Grupo 1", títulos colapsables (azul claro), funciones en filas verdes con botones (+) y eliminar | GroupsMainView + TituloAccordion + FuncionItem | Visualización completa de grupo con títulos y funciones. Títulos son colapsables. |
-| 3 | Imagen 4 (inline) | Formulario inline (NO modal) que se expande debajo del SearchBar: input "Nombre grupo/título", dropdown "Seleccione la Función", botones X y ✓ | CreateGroupForm | Crear nuevo grupo con primer título y función inicial en un solo paso. |
-| 4 | image-0027.png | Alerta verde "Registro guardado correctamente" con botón "Aceptar" | SuccessAlert | Feedback de operación exitosa. |
-| 5 | image-0132.png | Modal "Usuarios relacionados del Grupo [nombre]" con tabla: RUT, Nombre, Fecha inicio vigencia, Fecha fin vigencia, botón "Exportar a Excel" | UserListModal | Visualizar lista de usuarios asignados al grupo con sus vigencias. |
-| 6 | image-0034.png | Alerta confirmación con texto "¿Está seguro que desea eliminar este registro?" y advertencia "Este registro se encontrará disponible en...", botones "Aceptar" y "Cancelar" | ConfirmDialog | Confirmación antes de eliminar grupo, título o función. |
-| 7 | image-0139.png | Modal "Agregar Título al Grupo [nombre]" con input "Ingrese el Título", sección "Funciones del título" con dropdown "Seleccione la Función", botón (+) agregar más, botón "Agregar" | AddTituloModal | Agregar nuevo título a un grupo existente con múltiples funciones simultáneas. |
-| 8 | image-0143.png | Modal "Agregar Función al Título [nombre]" mostrando "Título: [nombre]" (read-only), dropdown "Seleccione la Función", botón (+) para más funciones, botón "Agregar" | AddFuncionModal | Agregar funciones adicionales a un título ya existente. |
+| 1 | ![image-0135](./images/image-0135.png) | Header verde "Control de Acceso" con tabs horizontales (Usuario relacionado, Unidad negocio, Funciones, Mantenedores dropdown), debajo: SearchBar con dropdown "Grupo" (vacío), toggle "No Vigente"/"Vigente" (verde), botón lupa | SearchBar | Búsqueda/filtro de grupos. Dropdown lista todos los grupos, toggle filtra por vigencia. |
+| 2 | ![image-0127](./images/image-0127.png) | Pantalla principal con grupo expandido verde "Grupo: Sistema OT" (icono estrella, 100 usuarios, toggle Vigente ON), títulos colapsables verde claro "Título 1: OT Reportes" con funciones en filas verde oscuro (Función 1: csdfcasc, Función 2, Función 3) cada una con botones icono basurero y (+). "Título 2: OT Opciones para jefaturas" con 2 funciones | GroupsMainView + TituloAccordion + FuncionItem | Visualización completa de grupo con títulos y funciones. Títulos son colapsables/expandibles. |
+| 3 | ![image-0129](./images/image-0129.png) | Formulario inline expandido debajo SearchBar: input verde "Ingrese nombre del Grupo", toggle "No Vigente"/"Vigente", input verde claro "Ingrese nombre del Título", dropdown verde claro "Seleccione Función", botones X (gris) y check (verde) abajo | CreateGroupForm | Crear nuevo grupo con primer título y función inicial en un solo paso (formulario inline, NO modal). |
+| 4 | ![image-0027](./images/image-0027.png) | Modal pequeño header verde "Alerta", body blanco "Registro guardado correctamente", botón verde "Aceptar" | SuccessAlert | **NOTA:** Componente estándar, NO incluir en flujos. Solo indicar mensaje específico. |
+| 5 | ![image-0132](./images/image-0132.png) | Modal grande "Usuarios relacionados del Grupo Sistema OT" con tabla (columnas: Rut, Nombre, Vigencia Inicial, Vigencia Final), 3 filas con datos, botón verde "Exportar a Excel" con icono abajo derecha | UserListModal | Visualizar lista de usuarios asignados al grupo con sus vigencias. Exportar a Excel. |
+| 6 | ![image-0034](./images/image-0034.png) | Modal header verde "Alerta", texto "¿Está seguro que desea eliminar este registro? Perderá toda la información asociada.", botones "Aceptar" (verde) y "Cancelar" (blanco) | ConfirmDialog | **NOTA:** Componente estándar, NO incluir en flujos. Solo indicar mensaje específico. |
+| 7 | ![image-0139](./images/image-0139.png) | Modal verde "Agregar Título" con input "Ingrese Título", sección "Funciones del título" con dropdown "Seleccione la Función" y botón (+) verde, botón verde "Agregar" abajo | AddTituloModal | Agregar nuevo título a un grupo existente con múltiples funciones simultáneas. |
+| 8 | ![image-0143](./images/image-0143.png) | Modal verde "Agregar Función" con texto read-only "Título 1: fcxfgfg", dropdown "Seleccione la Función", botón (+) verde, botón verde "Agregar" | AddFuncionModal | Agregar funciones adicionales a un título ya existente. |
 
 ---
 
@@ -32,21 +32,13 @@ Vue 3 + Composition API | Bootstrap 5.2 | Vuex 4.1 | Axios | acaj-intra-ui
 - GroupSection expandida con títulos colapsables
 - Cada título contiene lista de funciones con botones acción
 
-**Estado Vuex Requerido:**
-```javascript
-{
-  grupos: [], // Lista de grupos (GET /buscar)
-  selectedGrupo: null, // Grupo seleccionado desde dropdown
-  loading: false,
-  error: null
-}
-```
-
 ---
 
 ### 2.2 SearchBar Component
 
-**Imagen Referencia:** image-0135.png
+**Imagen Referencia:**
+
+![SearchBar](./images/image-0135.png)
 
 **Funcionalidad:**
 - Dropdown "Seleccione grupo" (carga dinámica desde GET /grupos/buscar)
@@ -73,7 +65,7 @@ Response 200: {id, nombreGrupo, vigente, titulos: [{id, titulo, orden, funciones
 1. Usuario selecciona grupo del dropdown
 2. Click lupa (o Enter)
 3. Ejecuta GET /grupos/{grupoId}
-4. Si 200: cargar grupo en Vuex, renderizar GroupSection
+4. Si 200: cargar grupo, renderizar GroupSection
 5. Si error: mostrar mensaje error
 
 **Flujo Toggle Vigente:**
@@ -86,7 +78,9 @@ Response 200: {id, nombreGrupo, vigente, titulos: [{id, titulo, orden, funciones
 
 ### 2.3 CreateGroupForm Component (Inline, NO Modal)
 
-**Imagen Referencia:** Imagen 4 (inline)
+**Imagen Referencia:**
+
+![CreateGroupForm inline](./images/image-0129.png)
 
 **Funcionalidad:**
 - Formulario inline que se expande/colapsa debajo del SearchBar
@@ -120,7 +114,7 @@ Response 201: {id: 100, nombreGrupo, vigente: "S", titulos: [...]}
 4. Click ✓
 5. Validar campos obligatorios
 6. Ejecutar POST /grupos (crea grupo + título + función en transacción)
-7. Si 201: colapsar form, cargar nuevo grupo en dropdown, mostrar SuccessAlert
+7. Si 201: colapsar form, cargar nuevo grupo en dropdown, mostrar alerta "Grupo creado correctamente"
 8. Si 409: mostrar error "Grupo ya existe"
 9. Si error: mostrar mensaje error
 
@@ -133,7 +127,9 @@ Response 201: {id: 100, nombreGrupo, vigente: "S", titulos: [...]}
 
 ### 2.4 GroupSection Component
 
-**Imagen Referencia:** image-0127.png (área expandida del grupo)
+**Imagen Referencia:**
+
+![GroupSection](./images/image-0127.png)
 
 **Funcionalidad:**
 - Card principal con header:
@@ -166,21 +162,23 @@ Response 409: {error: "Grupo vigente no puede eliminarse"}
 **Flujo Toggle Vigencia:**
 1. Usuario cambia switch
 2. Ejecuta PUT /grupos/{grupoId}/vigencia
-3. Si 200: actualizar badge, actualizar Vuex
+3. Si 200: actualizar badge en vista
 4. Si error: revertir switch, mostrar error
 
 **Flujo Eliminar Grupo:**
 1. Usuario click basurero (solo si no vigente)
-2. Abrir ConfirmDialog
+2. Abrir ConfirmDialog con mensaje "¿Está seguro de eliminar este grupo?"
 3. Si Aceptar: DELETE /grupos/{grupoId}
-4. Si 200: limpiar Vuex, colapsar GroupSection, mostrar SuccessAlert
+4. Si 200: colapsar GroupSection, mostrar alerta "Grupo eliminado correctamente"
 5. Si 409: mostrar error "Grupo vigente no puede eliminarse"
 
 ---
 
 ### 2.5 TituloAccordion Component
 
-**Imagen Referencia:** image-0127.png (filas azul claro colapsables)
+**Imagen Referencia:**
+
+![TituloAccordion](./images/image-0127.png)
 
 **Funcionalidad:**
 - Acordeón colapsable por cada título
@@ -206,16 +204,18 @@ Response 409: {error: "No se puede eliminar el único título del grupo"}
 **Flujo Eliminar Título:**
 1. Usuario click basurero
 2. Validar si es el único título (deshabilitado si COUNT=1)
-3. Abrir ConfirmDialog
+3. Abrir ConfirmDialog con mensaje "¿Está seguro de eliminar este título?"
 4. Si Aceptar: DELETE /titulos/{tituloId}
-5. Si 200: remover título de Vuex (CASCADE elimina funciones)
-6. Si 409: mostrar error
+5. Si 200: remover título de vista (CASCADE elimina funciones), mostrar alerta "Título eliminado correctamente"
+6. Si 409: mostrar error "No se puede eliminar el único título del grupo"
 
 ---
 
 ### 2.6 FuncionItem Component
 
-**Imagen Referencia:** image-0127.png (filas verdes dentro de títulos)
+**Imagen Referencia:**
+
+![FuncionItem](./images/image-0127.png)
 
 **Funcionalidad:**
 - Fila verde con:
@@ -233,16 +233,18 @@ Response 409: {error: "No se puede eliminar la última función del título"}
 **Flujo Eliminar Función:**
 1. Usuario click X
 2. Validar si es la última función del título (deshabilitado si COUNT=1)
-3. Abrir ConfirmDialog
+3. Abrir ConfirmDialog con mensaje "¿Está seguro de eliminar esta función?"
 4. Si Aceptar: DELETE /funciones/{funcionId}
-5. Si 200: remover función de Vuex
+5. Si 200: remover función de vista, mostrar alerta "Función eliminada correctamente"
 6. Si 409: mostrar error "No se puede eliminar la última función"
 
 ---
 
 ### 2.7 UserListModal Component
 
-**Imagen Referencia:** image-0132.png
+**Imagen Referencia:**
+
+![UserListModal](./images/image-0132.png)
 
 **Funcionalidad:**
 - Modal grande "Usuarios relacionados del Grupo [nombre]"
@@ -272,7 +274,9 @@ Response 200: [{rut, dv, nombreCompleto, vigenciaInicio, vigenciaFin}, ...]
 
 ### 2.8 AddTituloModal Component
 
-**Imagen Referencia:** image-0139.png
+**Imagen Referencia:**
+
+![AddTituloModal](./images/image-0139.png)
 
 **Funcionalidad:**
 - Modal "Agregar Título al Grupo [nombre]"
@@ -308,14 +312,16 @@ Response 201: {id: 200, titulo, orden: 2, funciones: [...]}
 5. Click "Agregar"
 6. Validar campos obligatorios
 7. Ejecutar POST /grupos/{grupoId}/titulos
-8. Si 201: cerrar modal, refrescar grupo, mostrar SuccessAlert
+8. Si 201: cerrar modal, refrescar grupo, mostrar alerta "Título agregado correctamente"
 9. Si 409: mostrar error "Título ya existe en este grupo"
 
 ---
 
 ### 2.9 AddFuncionModal Component
 
-**Imagen Referencia:** image-0143.png
+**Imagen Referencia:**
+
+![AddFuncionModal](./images/image-0143.png)
 
 **Funcionalidad:**
 - Modal "Agregar Función al Título [nombre]"
@@ -341,38 +347,8 @@ Response 201: {funcionesAgregadas: 2}
 4. Usuario selecciona funciones
 5. Click "Agregar"
 6. Ejecutar POST /titulos/{tituloId}/funciones
-7. Si 201: cerrar modal, refrescar grupo, mostrar SuccessAlert
+7. Si 201: cerrar modal, refrescar grupo, mostrar alerta "Funciones agregadas correctamente"
 8. Si 409: mostrar error "Función ya asignada a este título"
-
----
-
-### 2.10 ConfirmDialog Component
-
-**Imagen Referencia:** image-0034.png
-
-**Funcionalidad:**
-- Modal pequeño con icono alerta
-- Texto: "¿Está seguro que desea eliminar este registro?"
-- Advertencia: "Este registro se encontrará disponible en..." (texto dinámico según contexto)
-- Botón "Aceptar" (verde)
-- Botón "Cancelar" (blanco)
-
-**Uso:**
-- Confirmar antes de DELETE grupo, título o función
-
----
-
-### 2.11 SuccessAlert Component
-
-**Imagen Referencia:** image-0027.png
-
-**Funcionalidad:**
-- Modal con alerta verde
-- Texto: "Registro guardado correctamente" (o mensaje dinámico)
-- Botón "Aceptar" (cierra modal)
-
-**Uso:**
-- Feedback después de POST, PUT, DELETE exitosos
 
 ---
 
@@ -467,71 +443,41 @@ Response 201: {funcionesAgregadas: 2}
 
 ---
 
-## 6. Estado Global Vuex
+## 6. Consideraciones Técnicas
 
-```javascript
-{
-  grupos: {
-    listaGrupos: [], // GET /grupos/buscar
-    selectedGrupo: null, // GET /grupos/{grupoId}
-    loading: false,
-    error: null
-  }
-}
-```
-
-**Acciones:**
-- `buscarGrupos(vigente)` → GET /grupos/buscar
-- `cargarGrupo(grupoId)` → GET /grupos/{grupoId}
-- `crearGrupo(payload)` → POST /grupos
-- `actualizarVigenciaGrupo({grupoId, vigente})` → PUT /grupos/{grupoId}/vigencia
-- `eliminarGrupo(grupoId)` → DELETE /grupos/{grupoId}
-- `agregarTitulo(payload)` → POST /grupos/{grupoId}/titulos
-- `eliminarTitulo({grupoId, tituloId})` → DELETE /titulos/{tituloId}
-- `agregarFuncion(payload)` → POST /titulos/{tituloId}/funciones
-- `eliminarFuncion({grupoId, tituloId, funcionId})` → DELETE /funciones/{funcionId}
-- `cargarUsuariosGrupo(grupoId)` → GET /grupos/{grupoId}/usuarios
-
----
-
-## 7. Consideraciones Técnicas
-
-### 7.1 Navegación
+### 6.1 Navegación
 - Ruta principal: `/grupos`
 - Modales: no cambian URL (usar v-model para visibilidad)
 
-### 7.2 Loading States
+### 6.2 Loading States
 - SearchBar: spinner durante GET /grupos/buscar y GET /grupos/{grupoId}
 - CreateGroupForm: deshabilitar botones durante POST
 - Toggle vigencia: loading inline durante PUT
 
-### 7.3 Error Handling
+### 6.3 Error Handling
 - 409: Mensajes específicos según contexto (ej: "Grupo ya existe", "Grupo vigente no puede eliminarse")
 - 404: "Grupo no encontrado"
 - 500: "Error del servidor"
 
-### 7.4 Feedback Visual
+### 6.4 Feedback Visual
 - Badges de estado: "Vigente" (verde), "No vigente" (gris)
 - Botones deshabilitados según reglas de negocio
 - Acordeones colapsables para títulos
-- SuccessAlert después de operaciones exitosas
 
-### 7.5 Exportación Excel
+### 6.5 Exportación Excel
 - Usar biblioteca client-side: xlsx.js o SheetJS
 - Columnas: RUT | Nombre | Fecha Inicio | Fecha Fin
 - Nombre archivo: `Usuarios_Grupo_[nombreGrupo]_[fecha].xlsx`
 
 ---
 
-## 8. Checklist Frontend Developer
+## 7. Checklist Frontend Developer
 
 - [ ] Implementar SearchBar con dropdown dinámico y toggle vigente
-- [ ] Crear Vuex store con acciones para 11 APIs
 - [ ] Implementar CreateGroupForm inline (expandible, NO modal)
 - [ ] Crear GroupSection con títulos colapsables (accordion)
 - [ ] Implementar TituloAccordion y FuncionItem
 - [ ] Crear modales: AddTituloModal, AddFuncionModal, UserListModal
-- [ ] Implementar ConfirmDialog y SuccessAlert reutilizables
 - [ ] Validar estados botones (deshabilitar eliminar si único título/función, grupo vigente)
 - [ ] Implementar exportación a Excel (xlsx.js)
 - [ ] Testing: flujos crear grupo, agregar título, eliminar función

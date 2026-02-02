@@ -119,224 +119,27 @@
 
 ## Notas Técnicas
 
-### Frontend (React)
+**API Consumida:**  
+- PUT /acaj-ms/api/v1/{rut}-{dv}/grupos/{grupoId}/vigencia
 
-**Componente:** GroupSection
+**Validaciones:**
+- Parámetro vigente: debe ser 'S' o 'N'
+- Grupo: debe existir
+- Usuario: autenticación requerida (RUT en JWT)
 
-**Manejo de estado local:**
-```jsx
-const GroupSection = ({ grupo }) => {
-  const dispatch = useDispatch();
-  const [isUpdating, setIsUpdating] = useState(false);
-  
-  const handleToggleVigencia = async (checked) => {
-    const newVigente = checked ? 'S' : 'N';
-    setIsUpdating(true);
-    
-    try {
-      await dispatch(toggleVigencia({ 
-        grupoId: grupo.grupoId, 
-        vigente: newVigente 
-      })).unwrap();
-      
-      message.success('Registro guardado correctamente', 3);
-    } catch (error) {
-      message.error(error || 'Error al actualizar vigencia. Intente nuevamente.', 5);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-  
-  return (
-    <div className="group-section">
-      <h3>{grupo.nombre}</h3>
-      
-      <Switch
-        checked={grupo.vigente === 'S'}
-        onChange={handleToggleVigencia}
-        loading={isUpdating}
-        checkedChildren="Vigente"
-        unCheckedChildren="No Vigente"
-      />
-      
-      {/* ... resto del componente ... */}
-    </div>
-  );
-};
-```
-
-**Redux Async Thunk:**
-```javascript
-export const toggleVigencia = createAsyncThunk(
-  'grupos/toggleVigencia',
-  async ({ grupoId, vigente }, { getState, rejectWithValue }) => {
-    try {
-      const state = getState();
-      const { rut, dv } = state.auth.user;
-      
-      const response = await axios.put(
-        `/acaj-ms/api/v1/${rut}-${dv}/grupos/${grupoId}/vigencia`,
-        { vigente }
-      );
-      
-      return { grupoId, nuevaVigencia: vigente };
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.mensaje || 'Error al actualizar vigencia'
-      );
-    }
-  }
-);
-```
-
-**Reducer:**
-```javascript
-extraReducers: (builder) => {
-  builder.addCase(toggleVigencia.fulfilled, (state, action) => {
-    if (state.grupoActual?.grupoId === action.payload.grupoId) {
-      state.grupoActual.vigente = action.payload.nuevaVigencia;
-    }
-  });
-}
-```
-
-### Backend (Spring Boot)
-
-**Endpoint:** PUT `/acaj-ms/api/v1/{rut}-{dv}/grupos/{grupoId}/vigencia`
-
-**Controller:**
-```java
-@PutMapping("/{rut}-{dv}/grupos/{grupoId}/vigencia")
-public ResponseEntity<UpdateVigenciaResponse> updateVigencia(
-    @PathVariable String rut,
-    @PathVariable String dv,
-    @PathVariable Long grupoId,
-    @Valid @RequestBody UpdateVigenciaRequest request
-) {
-    validateRutFromToken(rut, dv);
-    
-    UpdateVigenciaResponse response = grupoService.updateVigencia(
-        grupoId, request.getVigente(), rut + "-" + dv
-    );
-    
-    return ResponseEntity.ok(response);
-}
-```
-
-**DTO Request:**
-```java
-public class UpdateVigenciaRequest {
-    @NotBlank(message = "Vigente es obligatorio")
-    @Pattern(regexp = "^[SN]$", message = "Vigente debe ser 'S' o 'N'")
-    private String vigente;
-}
-```
-
-**Service:**
-```java
-@Transactional
-public UpdateVigenciaResponse updateVigencia(Long grupoId, String vigente, String rutUsuario) {
-    // 1. Buscar grupo
-    Grupo grupo = grupoRepository.findById(grupoId)
-        .orElseThrow(() -> new NotFoundException("Grupo ID " + grupoId + " no existe"));
-    
-    // 2. Guardar valor anterior para auditoría
-    String vigenciaAnterior = grupo.getVigente();
-    
-    // 3. Actualizar vigencia
-    grupo.setVigente(vigente);
-    grupo.setFechaModificacion(LocalDate.now());
-    grupo.setUsuarioModificacion(rutUsuario);
-    grupoRepository.save(grupo);
-    
-    // 4. Registrar auditoría
-    String estadoNuevo = "S".equals(vigente) ? "Vigente" : "No Vigente";
-    auditoriaService.registrar(
-        "BR_GRUPOS",
-        "UPDATE",
-        grupoId,
-        Map.of("vigente", vigenciaAnterior),
-        Map.of("vigente", vigente),
-        rutUsuario,
-        "Se modificó la vigencia del Grupo " + grupo.getNombre() + " a " + estadoNuevo
-    );
-    
-    return UpdateVigenciaResponse.builder()
-        .mensaje("Vigencia actualizada")
-        .grupoId(grupoId)
-        .nuevaVigencia(vigente)
-        .build();
-}
-```
-
-### Base de Datos
-
-**Query de actualización:**
-```sql
-UPDATE BR_GRUPOS 
-SET GRUP_VIGENTE = :vigente,
-    GRUP_FECHA_MODIFICACION = SYSDATE,
-    GRUP_USUARIO_MODIFICACION = :rutUsuario
-WHERE GRUP_ID = :grupoId;
-```
+**Tablas BD (operación UPDATE):**
+- BR_GRUPOS: actualiza GRUP_VIGENTE, GRUP_FECHA_MODIFICACION, GRUP_USUARIO_MODIFICACION
+- BR_AUDITORIA_CAMBIOS: registro de auditoría (operación UPDATE)
 
 **Impacto:**
-- Afecta 1 registro en BR_GRUPOS
-- NO afecta BR_USUARIO_GRUPO (asignaciones permanecen activas)
-- Inserta 1 registro en BR_AUDITORIA_CAMBIOS
+- Las asignaciones existentes en BR_USUARIO_GRUPO NO se modifican
+- El cambio solo afecta disponibilidad para nuevas asignaciones
+- El grupo desaparece/aparece del dropdown según filtro vigente aplicado
 
-## Testing
+## Dependencias
 
-### Frontend
-
-```javascript
-describe('GroupSection - Toggle Vigencia', () => {
-  it('debe cambiar vigencia de S a N exitosamente', async () => {
-    const mockToggle = vi.fn().mockResolvedValue({ nuevaVigencia: 'N' });
-    
-    render(<GroupSection grupo={{ grupoId: 123, nombre: 'Sistema OT', vigente: 'S' }} />);
-    
-    const switchElement = screen.getByRole('switch');
-    expect(switchElement).toBeChecked();
-    
-    fireEvent.click(switchElement);
-    
-    await waitFor(() => {
-      expect(mockToggle).toHaveBeenCalledWith({ grupoId: 123, vigente: 'N' });
-      expect(screen.getByText(/Registro guardado correctamente/)).toBeInTheDocument();
-    });
-  });
-  
-  it('debe revertir switch si falla la actualización', async () => {
-    const mockToggle = vi.fn().mockRejectedValue(new Error('500'));
-    
-    render(<GroupSection grupo={{ grupoId: 123, vigente: 'S' }} />);
-    
-    fireEvent.click(screen.getByRole('switch'));
-    
-    await waitFor(() => {
-      expect(screen.getByText(/Error al actualizar vigencia/)).toBeInTheDocument();
-      expect(screen.getByRole('switch')).toBeChecked(); // Revertido
-    });
-  });
-});
-```
-
-### Backend
-
-```java
-@Test
-void updateVigencia_conGrupoExistente_debeActualizarExitosamente() {
-    Grupo grupo = Grupo.builder().id(123L).nombre("Sistema OT").vigente("S").build();
-    when(grupoRepository.findById(123L)).thenReturn(Optional.of(grupo));
-    
-    UpdateVigenciaResponse response = grupoService.updateVigencia(123L, "N", "12345678-9");
-    
-    assertEquals("N", response.getNuevaVigencia());
-    verify(grupoRepository, times(1)).save(argThat(g -> "N".equals(g.getVigente())));
-    verify(auditoriaService, times(1)).registrar(eq("BR_GRUPOS"), eq("UPDATE"), eq(123L), any(), any(), any(), any());
-}
-```
+- BR_GRUPOS (actualización de vigencia)
+- BR_AUDITORIA_CAMBIOS (registro de cambios)
 
 ## Glosario
 

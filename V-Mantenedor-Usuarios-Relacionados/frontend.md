@@ -9,12 +9,30 @@ Vue 3 + Composition API | Bootstrap 5.2 | Vuex 4.1 | Axios | acaj-intra-ui
 
 | # | Imagen | Descripción Visual | Componente Identificado | Propósito Funcional |
 |---|--------|-------------------|------------------------|---------------------|
-| 1 | image-0027.png | Pantalla con input "Ingrese RUT:", icono lupa, botón verde "+ Agregar usuario nuevo", área vacía debajo | SearchBar + EmptyState | Búsqueda de usuario por RUT. Estado inicial sin resultados. |
-| 2 | image-0028.png | Alerta verde con texto "Registro guardado correctamente" y botón "Aceptar" | SuccessAlert | Feedback de operación exitosa (crear, editar, eliminar). |
-| 3 | image-0025.png | Card "Usuario Relacionado" con datos completos: RUT, Tipo SII/Externo, Nombre, Email, Teléfono, Toggle Jurisdicción Simple/Ampliada, Vigencias, botones editar y eliminar. Abajo: sección "Unidad de Negocio" expandida con cargos y funciones en verde. | UserDetailCard + UnidadSection | Visualización completa de usuario encontrado con todos sus cargos y funciones asignadas. |
-| 4 | image-0020.png | Modal "Agregar Cargo" con dropdown "Seleccione Cargo", calendarios Vigencia Inicio/Fin, sección "Funciones del cargo" con dropdown "Seleccione la Función" y botón (+) para agregar más, botón "Agregar" | AddCargoModal | Asignar nuevo cargo a usuario con múltiples funciones simultáneas. |
-| 5 | image-0022.png | Modal "Agregar Función del cargo" mostrando "Cargo: Jefe de Departamento" (read-only), dropdown "Seleccione la Función", botón (+) para más funciones, botón "Agregar" | AddFuncionModal | Agregar funciones adicionales a un cargo ya existente. |
-| 6 | image-0010.png | Alerta confirmación con texto "¿Está seguro que desea eliminar este registro? Perderá toda la información asociada." Botones "Aceptar" (verde) y "Cancelar" (blanco) | ConfirmDialog | Confirmación antes de eliminar usuario, cargo o función. |
+| 1 | ![image-0027](./images/image-0027.png) | Header verde "Control de Acceso" con logo puerta verde izq, info usuario derecha (RUT 15000000-1, fecha 30-06-2025 10:00), navegación tabs horizontal: "Usuario relacionado" (activa), "Unidad de negocio", "Funciones", "Mantenedores" (con dropdown). Debajo: SearchBar con input "Ingrese RUT:", botón lupa, icono usuario verde, botón verde "Agregar", icono reloj historial derecha. Área contenido vacía debajo. | HeaderNav + SearchBar + EmptyState | Pantalla inicial de búsqueda de usuario por RUT. Estado sin resultados. |
+| 2 | ![image-0028](./images/image-0028.png) | Modal pequeño con header verde "Alerta", body blanco con texto "Registro guardado correctamente", botón verde "Aceptar" centrado | SuccessAlert | **NOTA:** Componente estándar, NO incluir en flujos. Solo indicar mensaje específico: "Usuario creado", "Cargo eliminado", etc. |
+| 3 | ![image-0025](./images/image-0025.png) | Card verde "Usuario Relacionado" con checkbox: RUT 15.000.000-0, badge "SII" azul con toggle SII/Múltiple, nombre completo "María de los Ángeles Moscoso Aldumate", email, teléfono, toggle "Simple"/"Múltiple" jurisdicción verde/gris, vigencias con calendarios, botones check verde/reload/eliminar. Debajo: sección verde expandida "Unidad SII: Departamento de Operaciones" con cargo "Jefe de Departamento" (fechas 31-12-2002 a 31-12-2025) y 4 filas verdes de funciones: "Consulta general", "Usuario", "Mantención" (2 veces), cada una con atribuciones "Alcance", "OT: Opciones 1". Segundo cargo "Tasador" con función "Mantención". | UserDetailCard + UnidadSection | Visualización completa de usuario encontrado con todos sus cargos y funciones asignadas por unidad de negocio. |
+| 4 | ![image-0020](./images/image-0020.png) | Modal verde "Información de Autorización" con 2 toggles: "Autorización subdirector(a)" (OFF gris), "Convenio Vigente" (ON verde), dropdown "Tipo de convenio" con flecha, input "N° Ticket", botón verde "Agregar" | CreateAuthorizationModal | **NOTA:** Este modal pertenece a funcionalidad de AUTORIZACIÓN ESPECIAL, NO es parte del flujo estándar de creación/edición de usuarios. Agregar autorización subdirector o convenio vigente. |
+| 5 | ![image-0022](./images/image-0022.png) | Pantalla completa menú intranet azul "MENÚ PRINCIPAL DE USUARIO RELACIONADO" (header azul con logo SII, navegación Atención de Contribuyentes, Aplicaciones, Mi Portal, Instrucción, Planificación). Breadcrumb "Menú principal de Usuarios Relacionados". Sidebar izquierda con foto usuario "Juan Carlos Astudillo Maldonado", Departamento de Operaciones, última conexión 31-07-2025 17:05, menú: Sistema OT, Control de Acceso (activo verde), F 2890, Modelo C, Vehículos, "Ver todas las Opciones". Panel derecho con secciones azules: Sistema OT (OT Resolutor, OT Opciones Jefes, OT Reportes 1-5, OT Mantenedores), Control de Acceso (CA Mantenedores, CA ingreso), F 2890 (F2890 Mantenedores, CA ingreso) | MainMenuView | **NOTA:** Este es el MENÚ PRINCIPAL del usuario autenticado con acceso a todos los sistemas, NO es parte del módulo V. Muestra todos los módulos asignados al usuario según sus permisos. |
+| 6 | ![image-0010](./images/image-0010.png) | Header verde "Control de Acceso" con logo puerta, info usuario derecha (RUT 15000000-1, 30-08-2025 10:00). Navegación tabs: "Usuario relacionado", "Unidad de negocio", "Funciones", "Mantenedores" (dropdown expandido mostrando: Alcance, Atribuciones, Cargos, Opciones, Tipo de usuario, Grupos), "Reportes" (dropdown expandido mostrando: Tickets) | NavigationTabs | Navegación principal del sistema Control de Acceso con acceso directo a todos los mantenedores y reportes via dropdowns. |
+
+**Notas Críticas:**
+
+1. **Imágenes 0020 y 0022** NO son parte del flujo principal del Módulo V Mantenedor de Usuarios Relacionados:
+   - image-0020: Modal de autorización especial (funcionalidad secundaria)
+   - image-0022: Menú principal intranet (vista externa al módulo V)
+
+2. **Mockups NO incluidos** (especificar según requerimientos):
+   - Modal "Crear Usuario Interno/Externo" con tabs SII/OCM
+   - Modal "Agregar Cargo" con dropdown cargos y funciones
+   - Modal "Agregar Función" a cargo existente  
+   - ConfirmDialog para eliminar usuario/cargo/función
+
+3. **Flujo visual principal** del Módulo V:
+   - Pantalla inicial: image-0027 (SearchBar vacío)
+   - Usuario encontrado: image-0025 (UserDetailCard + cargos/funciones)
+   - Feedback éxito: image-0028 (SuccessAlert)
+   - Navegación sistema: image-0010 (NavigationTabs con dropdowns)
 
 **Nota Crítica:** El Módulo V también requiere un modal de creación de usuario (no mostrado en imágenes 0010-0028). Según especificación en README.md, debe tener tabs para Usuario INTERNO (SII/SIGER) y Usuario EXTERNO (OCM/RIAC/Notarios).
 
@@ -32,20 +50,13 @@ Vue 3 + Composition API | Bootstrap 5.2 | Vuex 4.1 | Axios | acaj-intra-ui
 - SearchBar con input RUT + lupa + botón "Agregar"
 - Área de contenido dinámica (EmptyState o UserDetailCard + UnidadSections)
 
-**Estado Vuex Requerido:**
-```javascript
-{
-  selectedUsuario: null, // Usuario cargado desde GET /buscar
-  loading: false,
-  error: null
-}
-```
-
 ---
 
 ### 2.2 SearchBar Component
 
-**Imagen Referencia:** image-0027.png (estado inicial)
+**Imagen Referencia:**
+
+![SearchBar estado inicial](./images/image-0027.png)
 
 **Funcionalidad:**
 - Input de texto para RUT con formato automático XX.XXX.XXX-X
@@ -70,7 +81,7 @@ Response 404: {error: "Usuario no encontrado"}
 1. Usuario ingresa RUT
 2. Sistema valida formato y módulo 11
 3. Si válido: deshabilitar input, mostrar loading, ejecutar GET /buscar
-4. Si 200: cargar usuario en Vuex, renderizar UserDetailCard
+4. Si 200: cargar usuario, renderizar UserDetailCard
 5. Si 404: mostrar mensaje "Usuario no encontrado", mantener EmptyState
 6. Si error: mostrar alerta error
 
@@ -78,9 +89,11 @@ Response 404: {error: "Usuario no encontrado"}
 
 ### 2.3 EmptyState Component
 
-**Imagen Referencia:** image-0027.png (área vacía debajo de SearchBar)
+**Imagen Referencia:**
 
-**Funcionalidad:**
+![EmptyState - área vacía debajo de SearchBar](./images/image-0027.png)
+
+**Funcionalidad:
 - Estado inicial cuando no hay usuario cargado
 - Mensaje: "Ingrese un RUT para buscar un usuario relacionado o haga clic en Agregar para crear uno nuevo"
 - Icono ilustrativo (opcional)
@@ -89,7 +102,9 @@ Response 404: {error: "Usuario no encontrado"}
 
 ### 2.4 UserDetailCard Component
 
-**Imagen Referencia:** image-0025.png (card superior verde)
+**Imagen Referencia:**
+
+![UserDetailCard con datos completos](./images/image-0025.png)
 
 **Funcionalidad:**
 - Card con título "Usuario Relacionado" y checkbox verde
@@ -118,24 +133,28 @@ Response 409: {error: "Usuario tiene cargos vigentes"}
 ```
 
 **Flujo Toggle Jurisdicción:**
-1. Usuario cambia toggle
+
+1. Usuario cambia toggle en UserDetailCard
 2. Sistema muestra loading
 3. Ejecuta PUT /jurisdiccion
-4. Si 200: actualizar Vuex, mostrar mensaje éxito
+4. Si 200: actualizar vista, mostrar alerta "Jurisdicción actualizada correctamente"
 5. Si error: revertir toggle, mostrar error
 
 **Flujo Eliminar:**
-1. Usuario click basurero
-2. Abrir ConfirmDialog con mensaje "¿Está seguro...?"
+
+1. Usuario click basurero en UserDetailCard
+2. Abrir ConfirmDialog con mensaje "¿Está seguro de eliminar este usuario?"
 3. Si Aceptar: ejecutar DELETE
-4. Si 200: limpiar Vuex, mostrar SuccessAlert, volver a EmptyState
+4. Si 200: limpiar vista, mostrar alerta "Usuario eliminado correctamente", volver a EmptyState
 5. Si 409: mostrar error "Usuario tiene cargos vigentes"
 
 ---
 
 ### 2.5 UnidadSection Component
 
-**Imagen Referencia:** image-0025.png (sección verde expandible "Unidad SII: Departamento de Operaciones")
+**Imagen Referencia:**
+
+![UnidadSection con cargos y funciones](./images/image-0025.png)
 
 **Funcionalidad:**
 - Card expandible/colapsable por cada unidad donde el usuario tiene cargos
@@ -170,19 +189,21 @@ Response 409: {error: "No se puede eliminar la última función"}
 ```
 
 **Flujo Eliminar Cargo:**
+
 1. Usuario click eliminar cargo
 2. Validar si cargo vigente (deshabilitado si es vigente)
-3. Abrir ConfirmDialog
+3. Abrir ConfirmDialog con mensaje "¿Está seguro de eliminar este cargo?"
 4. Si Aceptar: DELETE /cargos/{cargoId}
-5. Si 200: remover cargo de Vuex (CASCADE elimina funciones automáticamente)
-6. Si 409: mostrar error
+5. Si 200: remover cargo de vista (CASCADE elimina funciones automáticamente), mostrar alerta "Cargo eliminado correctamente"
+6. Si 409: mostrar error "Cargo vigente no puede eliminarse"
 
 **Flujo Eliminar Función:**
+
 1. Usuario click eliminar función
 2. Validar si es la última función (deshabilitado si COUNT=1)
-3. Abrir ConfirmDialog
+3. Abrir ConfirmDialog con mensaje "¿Está seguro de eliminar esta función?"
 4. Si Aceptar: DELETE /cargos/{cargoId}/funciones/{funcionId}
-5. Si 200: remover función de Vuex
+5. Si 200: remover función de vista, mostrar alerta "Función eliminada correctamente"
 6. Si 409: mostrar error "No se puede eliminar la última función"
 
 ---
@@ -226,10 +247,11 @@ Response 502: {error: "Error integrando con RIAC"}
 ```
 
 **Flujo Crear Usuario Interno:**
+
 1. Usuario completa form tab Interno
 2. Validar campos obligatorios
 3. Mostrar loading, ejecutar POST /interno
-4. Si 201: cerrar modal, cargar usuario en Vuex, mostrar SuccessAlert "Registro guardado correctamente"
+4. Si 201: cerrar modal, cargar usuario creado, mostrar alerta "Usuario creado correctamente"
 5. Si 409: mostrar error "Usuario ya existe"
 6. Si 502: mostrar error "Error al obtener datos desde SIGER"
 
@@ -237,7 +259,7 @@ Response 502: {error: "Error integrando con RIAC"}
 
 ### 2.7 AddCargoModal Component
 
-**Imagen Referencia:** image-0020.png
+**Imagen Referencia:** NO MOSTRADA en mockups cliente (especificar según requerimientos)
 
 **Funcionalidad:**
 - Modal "Agregar Cargo"
@@ -270,6 +292,7 @@ Response 201: {id: 999, ...}
 ```
 
 **Flujo Agregar Cargo:**
+
 1. Al abrir modal: cargar GET /cargos/disponibles
 2. Usuario selecciona cargo del dropdown
 3. Usuario agrega vigencias (inicio obligatorio, fin opcional)
@@ -279,14 +302,14 @@ Response 201: {id: 999, ...}
    - Validar al menos 1 función seleccionada
    - Ejecutar POST /cargos → obtener cargoId
    - Ejecutar múltiples POST /cargos/{cargoId}/funciones (Promise.all)
-   - Si todos 201: cerrar modal, refrescar GET /buscar, mostrar SuccessAlert
+   - Si todos 201: cerrar modal, refrescar GET /buscar, mostrar alerta "Cargo agregado correctamente"
    - Si error: mostrar mensaje error
 
 ---
 
 ### 2.8 AddFuncionModal Component
 
-**Imagen Referencia:** image-0022.png
+**Imagen Referencia:** NO MOSTRADA en mockups cliente (especificar según requerimientos)
 
 **Funcionalidad:**
 - Modal "Agregar Función del cargo"
@@ -306,16 +329,17 @@ Response 201: {id: 999, ...}
 ```
 
 **Flujo:**
+
 1. Al abrir modal: cargar GET /funciones/disponibles para cargoId
 2. Usuario selecciona funciones
 3. Click "Agregar": ejecutar múltiples POST /funciones
-4. Si todos 201: cerrar modal, refrescar, mostrar SuccessAlert
+4. Si todos 201: cerrar modal, refrescar, mostrar alerta "Funciones agregadas correctamente"
 
 ---
 
 ### 2.9 ConfirmDialog Component
 
-**Imagen Referencia:** image-0010.png
+**Imagen Referencia:** NO MOSTRADA en mockups cliente (componente estándar)
 
 **Funcionalidad:**
 - Modal pequeño con icono alerta
@@ -427,33 +451,7 @@ Response 201: {id: 999, ...}
 
 ---
 
-## 6. Estado Global Vuex
-
-```javascript
-{
-  usuariosRelacionados: {
-    selectedUsuario: null, // Usuario actual cargado
-    loading: false,
-    error: null,
-    searchHistory: [] // Últimas búsquedas (opcional)
-  }
-}
-```
-
-**Acciones:**
-- `buscarUsuario(rut)` → GET /buscar
-- `crearUsuarioInterno(payload)` → POST /interno
-- `crearUsuarioExterno(payload)` → POST /externo
-- `actualizarJurisdiccion({rut, dv, jurisdiccion})` → PUT /jurisdiccion
-- `eliminarUsuario({rut, dv})` → DELETE
-- `crearCargo(payload)` → POST /cargos
-- `eliminarCargo({rut, dv, cargoId})` → DELETE /cargos/{cargoId}
-- `asignarFuncion(payload)` → POST /cargos/{cargoId}/funciones
-- `eliminarFuncion({rut, dv, cargoId, funcionId})` → DELETE /funciones/{funcionId}
-
----
-
-## 7. Integraciones Externas
+## 6. Integraciones Externas
 
 | Sistema | Trigger | Datos Obtenidos | Campos BD Afectados |
 |---------|---------|-----------------|---------------------|
@@ -464,24 +462,24 @@ Response 201: {id: 999, ...}
 
 ---
 
-## 8. Consideraciones Técnicas
+## 7. Consideraciones Técnicas
 
-### 8.1 Navegación
+### 7.1 Navegación
 - Ruta principal: `/usuarios-relacionados`
 - Modal: no cambia URL (usar v-model para visibilidad)
 
-### 8.2 Loading States
+### 7.2 Loading States
 - SearchBar: spinner en botón lupa durante GET /buscar
 - Modales: deshabilitar botones y mostrar spinner durante POST
 - Toggle jurisdicción: loading inline durante PUT
 
-### 8.3 Error Handling
+### 7.3 Error Handling
 - 404: Mensaje específico "Usuario no encontrado"
 - 409: Mensaje específico según contexto (ej: "Usuario ya existe", "Cargo vigente no puede eliminarse")
 - 502: Mensaje "Error integrando con SIGER/RIAC"
 - 500: Mensaje genérico "Error del servidor"
 
-### 8.4 Feedback Visual
+### 7.4 Feedback Visual
 - SuccessAlert después de operaciones exitosas
 - ConfirmDialog antes de operaciones destructivas
 - Badges de estado: "Vigente" (verde), "No vigente" (gris)
@@ -489,10 +487,9 @@ Response 201: {id: 999, ...}
 
 ---
 
-## 9. Checklist Frontend Developer
+## 8. Checklist Frontend Developer
 
 - [ ] Implementar validación RUT módulo 11 (composable reutilizable)
-- [ ] Crear Vuex store con acciones para 13 APIs
 - [ ] Implementar SearchBar con formato automático RUT
 - [ ] Crear UserDetailCard con todos los campos mapeados a BD
 - [ ] Implementar UnidadSection con lógica expandir/colapsar

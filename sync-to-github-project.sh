@@ -90,32 +90,32 @@ ensure_epic() {
     local module_name=$(get_module_name "$module")
     local module_dir=$(get_module_dir "$module")
     
-    # Buscar épica existente
+    # Buscar épica existente (solo la primera coincidencia)
     local existing_epic=$(curl -s \
         -H "Authorization: token $GITHUB_TOKEN" \
         -H "Accept: application/vnd.github.v3+json" \
-        "https://api.github.com/repos/$REPO_OWNER/$PROJECT_REPO/issues?state=all&labels=epic&per_page=100" \
-        | jq -r ".[] | select(.title | startswith(\"EPIC: $module_name\")) | .number" \
-        | head -n1)
+        "https://api.github.com/repos/$REPO_OWNER/$PROJECT_REPO/issues?state=all&labels=epic,Módulo-$module&per_page=1" \
+        | jq -r 'if length > 0 then .[0].number else empty end' 2>/dev/null || echo "")
     
     if [ -n "$existing_epic" ]; then
         save_epic "$module" "$existing_epic"
+        echo "   ✓ Épica #$existing_epic: $module_name (existente)"
         return
     fi
     
-    # Crear épica
+    # Crear épica inicial (se actualizará después con las HdU)
     local epic_body="# Épica: $module_name
 
-Agrupa todas las Historias de Usuario (HdU) relacionadas con el $module_name.
+Agrupa todas las Historias de Usuario (HdU) del $module_name.
 
-## Documentación
+## 📁 Documentación
 - Directorio: \`docs/develop-plan/$module_dir/\`
 
-## HdU Relacionadas
-Las HdU de esta épica se irán agregando automáticamente y se pueden ver con la etiqueta \`Módulo-$module\`.
+## 📋 Historias de Usuario
+_Las HdU se vincularán automáticamente aquí..._
 
 ---
-*Esta épica se gestiona automáticamente por el script de sincronización.*"
+*Esta épica se sincroniza automáticamente desde el registro de HdU.*"
 
     local response=$(curl -s -w "\n%{http_code}" \
         -H "Authorization: token $GITHUB_TOKEN" \
@@ -138,6 +138,55 @@ Las HdU de esta épica se irán agregando automáticamente y se pueden ver con l
     else
         echo "   ❌ Error creando épica para $module"
     fi
+}
+
+# Función para actualizar épica con task list de HdU
+update_epic_with_hdus() {
+    local module="$1"
+    local epic_number=$(get_epic "$module")
+    
+    if [ -z "$epic_number" ]; then
+        return
+    fi
+    
+    local module_name=$(get_module_name "$module")
+    local module_dir=$(get_module_dir "$module")
+    
+    # Obtener todas las HdU de este módulo
+    local hdus=$(curl -s \
+        -H "Authorization: token $GITHUB_TOKEN" \
+        -H "Accept: application/vnd.github.v3+json" \
+        "https://api.github.com/repos/$REPO_OWNER/$PROJECT_REPO/issues?labels=HdU,Módulo-$module&state=all&per_page=100" \
+        | jq -r '.[] | "- [ ] #\(.number) - \(.title)"')
+    
+    if [ -z "$hdus" ]; then
+        return
+    fi
+    
+    # Construir body con task list
+    local epic_body="# Épica: $module_name
+
+Agrupa todas las Historias de Usuario (HdU) del $module_name.
+
+## 📁 Documentación
+- Directorio: \`docs/develop-plan/$module_dir/\`
+
+## 📋 Historias de Usuario
+
+$hdus
+
+---
+*Esta épica se sincroniza automáticamente desde el registro de HdU.*  
+*Marca las checkboxes según el progreso de cada HdU.*"
+    
+    # Actualizar épica
+    curl -s -X PATCH \
+        -H "Authorization: token $GITHUB_TOKEN" \
+        -H "Accept: application/vnd.github.v3+json" \
+        "https://api.github.com/repos/$REPO_OWNER/$PROJECT_REPO/issues/$epic_number" \
+        -d "$(jq -n \
+            --arg body "$epic_body" \
+            '{body: $body}')" > /dev/null
 }
 
 # Función para crear issue en GitHub
@@ -323,6 +372,19 @@ while IFS='|' read -r _ id filename functionality module status _; do
     fi
 done < <(grep "^| HdU-" "$REGISTRY_FILE" 2>/dev/null || true)
 
+# Paso 4: Actualizar épicas con task lists de sus HdU
+echo ""
+echo "🔗 Vinculando HdU a épicas..."
+for module in $modules; do
+    if [ -n "$module" ] && [ "$module" != "-" ]; then
+        epic_num=$(get_epic "$module")
+        if [ -n "$epic_num" ]; then
+            echo "   → Actualizando épica #$epic_num ($(get_module_name "$module"))"
+            update_epic_with_hdus "$module"
+        fi
+    fi
+done
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "✅ Sincronización completada"
@@ -332,3 +394,5 @@ echo ""
 echo "Ver en GitHub:"
 echo "  - Épicas: https://github.com/$REPO_OWNER/$PROJECT_REPO/issues?q=label%3Aepic"
 echo "  - HdU: https://github.com/$REPO_OWNER/$PROJECT_REPO/issues?q=label%3AHdU"
+echo ""
+echo "💡 Las épicas ahora incluyen task lists con links a las HdU"

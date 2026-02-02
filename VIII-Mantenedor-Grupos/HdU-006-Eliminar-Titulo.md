@@ -163,274 +163,31 @@
 
 ## Notas Técnicas
 
-### Frontend (React)
+**API Consumida:**  
+- DELETE /acaj-ms/api/v1/{rut}-{dv}/grupos/{grupoId}/titulos/{tituloId}
 
-**Componente:** TitulosAccordion
+**Validaciones:**
+- Título: debe existir y pertenecer al grupo especificado
+- Usuario: autenticación requerida (RUT en JWT)
 
-**Manejo de eliminación:**
-```jsx
-const TitulosAccordion = ({ grupo }) => {
-  const dispatch = useDispatch();
-  const [tituloAEliminar, setTituloAEliminar] = useState(null);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  
-  const handleDeleteClick = (titulo) => {
-    setTituloAEliminar(titulo);
-    setShowConfirm(true);
-  };
-  
-  const handleConfirmDelete = async () => {
-    setIsDeleting(true);
-    
-    try {
-      await dispatch(deleteTitulo({ 
-        grupoId: grupo.grupoId, 
-        tituloId: tituloAEliminar.tituloId 
-      })).unwrap();
-      
-      message.success('Título eliminado exitosamente', 3);
-      setShowConfirm(false);
-      setTituloAEliminar(null);
-    } catch (error) {
-      message.error(error || 'Error al eliminar título. Intente nuevamente.', 5);
-      setShowConfirm(false);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-  
-  return (
-    <div className="titulos-accordion">
-      {grupo.titulos.map(titulo => (
-        <Collapse key={titulo.tituloId}>
-          <Panel
-            header={
-              <div className="titulo-header">
-                <span>{titulo.nombre} ({titulo.funciones.length})</span>
-                <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Evitar expandir acordeón
-                    handleDeleteClick(titulo);
-                  }}
-                />
-              </div>
-            }
-          >
-            {/* Lista de funciones */}
-          </Panel>
-        </Collapse>
-      ))}
-      
-      <ConfirmDialog
-        visible={showConfirm}
-        title="¿Está seguro que desea eliminar este título?"
-        content={`Se eliminará el título "${tituloAEliminar?.nombre}" y todas sus funciones asociadas (${tituloAEliminar?.funciones.length}). Esta acción no se puede deshacer.`}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setShowConfirm(false)}
-        confirmLoading={isDeleting}
-      />
-    </div>
-  );
-};
-```
+**Tablas BD (operación DELETE con CASCADE):**
+- BR_TITULOS: eliminación física del título
+- BR_TITULOS_FUNCIONES: eliminación automática por FK CASCADE
+- BR_AUDITORIA_CAMBIOS: registro de auditoría (operación DELETE)
 
-**Redux Async Thunk:**
-```javascript
-export const deleteTitulo = createAsyncThunk(
-  'grupos/deleteTitulo',
-  async ({ grupoId, tituloId }, { getState, rejectWithValue }) => {
-    try {
-      const state = getState();
-      const { rut, dv } = state.auth.user;
-      
-      const response = await axios.delete(
-        `/acaj-ms/api/v1/${rut}-${dv}/grupos/${grupoId}/titulos/${tituloId}`
-      );
-      
-      return { grupoId, tituloId, eliminados: response.data.eliminados };
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.mensaje || 'Error al eliminar título'
-      );
-    }
-  }
-);
-```
+**Eliminación en CASCADE:**
+- Al eliminar BR_TITULOS, se eliminan automáticamente todas las funciones asociadas
 
-**Reducer:**
-```javascript
-extraReducers: (builder) => {
-  builder.addCase(deleteTitulo.fulfilled, (state, action) => {
-    if (state.grupoActual?.grupoId === action.payload.grupoId) {
-      // Remover título de lista
-      state.grupoActual.titulos = state.grupoActual.titulos.filter(
-        t => t.tituloId !== action.payload.tituloId
-      );
-    }
-  });
-}
-```
+**Comportamiento de orden:**
+- NO se reordenan los TITU_ORDEN de otros títulos
+- Se mantienen gaps en la secuencia (ej: 1, 3, 5)
+- Orden visual se mantiene por TITU_ORDEN ascendente
 
-### Backend (Spring Boot)
+## Dependencias
 
-**Endpoint:** DELETE `/acaj-ms/api/v1/{rut}-{dv}/grupos/{grupoId}/titulos/{tituloId}`
-
-**Controller:**
-```java
-@DeleteMapping("/{rut}-{dv}/grupos/{grupoId}/titulos/{tituloId}")
-public ResponseEntity<DeleteTituloResponse> deleteTitulo(
-    @PathVariable String rut,
-    @PathVariable String dv,
-    @PathVariable Long grupoId,
-    @PathVariable Long tituloId
-) {
-    validateRutFromToken(rut, dv);
-    
-    DeleteTituloResponse response = grupoService.deleteTitulo(
-        grupoId, tituloId, rut + "-" + dv
-    );
-    
-    return ResponseEntity.ok(response);
-}
-```
-
-**Service:**
-```java
-@Transactional
-public DeleteTituloResponse deleteTitulo(Long grupoId, Long tituloId, String rutUsuario) {
-    // 1. Verificar que título existe y pertenece al grupo
-    Titulo titulo = tituloRepository.findByIdAndGrupoId(tituloId, grupoId)
-        .orElseThrow(() -> new NotFoundException(
-            "Título ID " + tituloId + " no existe o no pertenece al grupo " + grupoId
-        ));
-    
-    // 2. Contar funciones asociadas (para auditoría)
-    long funcionesCount = tituloFuncionRepository.countByTituloId(tituloId);
-    
-    // 3. Guardar datos para auditoría
-    Map<String, Object> valoresAnteriores = Map.of(
-        "nombre", titulo.getNombre(),
-        "orden", titulo.getOrden(),
-        "grupoId", grupoId,
-        "funciones_eliminadas", funcionesCount
-    );
-    
-    // 4. Eliminar título (CASCADE automático)
-    tituloRepository.delete(titulo);
-    // ON DELETE CASCADE elimina automáticamente BR_TITULOS_FUNCIONES
-    
-    // 5. Registrar auditoría
-    auditoriaService.registrar(
-        "BR_TITULOS",
-        "DELETE",
-        tituloId,
-        valoresAnteriores,
-        null,
-        rutUsuario,
-        "Se eliminó el título " + titulo.getNombre() + 
-        " del grupo " + grupoId + 
-        " (" + funcionesCount + " funciones)"
-    );
-    
-    return DeleteTituloResponse.builder()
-        .mensaje("Título eliminado exitosamente")
-        .eliminados(Map.of(
-            "titulo", 1,
-            "funciones", funcionesCount
-        ))
-        .build();
-}
-```
-
-### Base de Datos
-
-**Query de verificación:**
-```sql
-SELECT COUNT(*) 
-FROM BR_TITULOS 
-WHERE TITU_ID = :tituloId 
-  AND TITU_GRUP_ID = :grupoId;
-```
-
-**Query de eliminación (CASCADE automático):**
-```sql
-DELETE FROM BR_TITULOS WHERE TITU_ID = :tituloId;
--- ON DELETE CASCADE en BR_TITULOS_FUNCIONES (FK TIFU_TITU_ID)
--- elimina automáticamente todas las funciones asociadas
-```
-
-**Impacto:**
-- BR_TITULOS: 1 registro eliminado
-- BR_TITULOS_FUNCIONES: N registros eliminados (CASCADE)
-- BR_GRUPOS: SIN cambios (grupo permanece intacto)
-
-## Testing
-
-### Frontend
-
-```javascript
-describe('TitulosAccordion - Eliminar Título', () => {
-  it('debe mostrar modal de confirmación al hacer clic en eliminar', () => {
-    const titulo = { tituloId: 46, nombre: 'OT Opciones', funciones: [{}, {}, {}] };
-    render(<TitulosAccordion grupo={{ grupoId: 123, titulos: [titulo] }} />);
-    
-    fireEvent.click(screen.getByRole('button', { name: /delete/ }));
-    
-    expect(screen.getByText(/¿Está seguro que desea eliminar/)).toBeInTheDocument();
-    expect(screen.getByText(/OT Opciones/)).toBeInTheDocument();
-    expect(screen.getByText(/3/)).toBeInTheDocument(); // cantidad funciones
-  });
-  
-  it('debe eliminar título exitosamente tras confirmación', async () => {
-    const mockDelete = vi.fn().mockResolvedValue({ eliminados: { titulo: 1, funciones: 3 } });
-    const titulo = { tituloId: 46, nombre: 'OT Opciones', funciones: [{}, {}, {}] };
-    
-    render(<TitulosAccordion grupo={{ grupoId: 123, titulos: [titulo] }} />);
-    
-    fireEvent.click(screen.getByRole('button', { name: /delete/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Eliminar/ }));
-    
-    await waitFor(() => {
-      expect(mockDelete).toHaveBeenCalledWith({ grupoId: 123, tituloId: 46 });
-      expect(screen.getByText(/Título eliminado exitosamente/)).toBeInTheDocument();
-    });
-  });
-});
-```
-
-### Backend
-
-```java
-@Test
-void deleteTitulo_conTituloExistente_debeEliminarExitosamente() {
-    Titulo titulo = Titulo.builder().id(46L).grupoId(123L).nombre("OT Opciones").orden(2).build();
-    when(tituloRepository.findByIdAndGrupoId(46L, 123L)).thenReturn(Optional.of(titulo));
-    when(tituloFuncionRepository.countByTituloId(46L)).thenReturn(3L);
-    
-    DeleteTituloResponse response = grupoService.deleteTitulo(123L, 46L, "12345678-9");
-    
-    assertEquals(1, response.getEliminados().get("titulo"));
-    assertEquals(3L, response.getEliminados().get("funciones"));
-    
-    verify(tituloRepository, times(1)).delete(titulo);
-    verify(auditoriaService, times(1)).registrar(eq("BR_TITULOS"), eq("DELETE"), eq(46L), any(), any(), any(), any());
-}
-
-@Test
-void deleteTitulo_conTituloNoPerteneciente_debeLanzarNotFoundException() {
-    when(tituloRepository.findByIdAndGrupoId(46L, 123L)).thenReturn(Optional.empty());
-    
-    assertThrows(NotFoundException.class, () -> {
-        grupoService.deleteTitulo(123L, 46L, "12345678-9");
-    });
-    
-    verify(tituloRepository, never()).delete(any());
-}
-```
+- BR_TITULOS (tabla principal)
+- BR_TITULOS_FUNCIONES (eliminación en cascade)
+- BR_GRUPOS (grupo permanece intacto)
 
 ## Glosario
 
