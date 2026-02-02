@@ -25,6 +25,19 @@ Crea todos los issues desde `registro-hdu.md` con épica en el cuerpo.
 ./create-all-hdus.sh
 ```
 
+#### `update-hdu-issues.sh` - Actualizar issues existentes
+Actualiza el contenido de los issues cuando cambien los archivos `.md` en el repositorio.
+
+```bash
+./update-hdu-issues.sh
+```
+
+**Funcionalidad:**
+- Detecta issues existentes por título
+- Compara contenido actual vs contenido en GitHub
+- Actualiza solo los que tienen cambios
+- Reporta issues sin cambios o no encontrados
+
 ### Limpiar Issues
 
 #### `close-all-issues.sh` - Cerrar todos los issues
