@@ -7,7 +7,7 @@ Scripts para gestionar issues de HdU en GitHub Project.
 ### Helpers Internos
 
 #### `convert-image-urls.sh` - Convertir URLs de imágenes
-Convierte rutas relativas de imágenes a URLs absolutas de GitHub para que se visualicen correctamente en los issues.
+Convierte rutas relativas de imágenes a URLs absolutas de GitHub para que se visualicen correctamente en los issues. También agrega una sección "Documentación de Referencia" con links a backend-apis.md, frontend.md y DDL/*.sql del módulo.
 
 ```bash
 ./convert-image-urls.sh <archivo.md> <modulo>
