@@ -26,9 +26,9 @@ if [ ! -f "$HDU_FILE" ]; then
     exit 1
 fi
 
-# Convertir rutas relativas a URLs de GitHub
+# Convertir rutas relativas a URLs de GitHub (raw para que se vean en Issues)
 # Patrones a convertir:
-# - ![desc](./images/image-0027.png) → ![desc](https://github.com/.../main/MODULE/images/image-0027.png)
-# - ![image-0027](./images/image-0027.png) → ![image-0027](https://github.com/.../main/MODULE/images/image-0027.png)
+# - ![desc](./images/image-0027.png) → ![desc](https://raw.githubusercontent.com/.../main/MODULE/images/image-0027.png)
+# - ![image-0027](./images/image-0027.png) → ![image-0027](https://raw.githubusercontent.com/.../main/MODULE/images/image-0027.png)
 
-sed -E "s|\!\[([^]]*)\]\(\./images/([^)]+)\)|![\\1](https://github.com/${REPO_OWNER}/${REPO_NAME}/blob/${BRANCH}/${MODULO}/images/\\2)|g" "$HDU_FILE"
+sed -E "s|\!\[([^]]*)\]\(\./images/([^)]+)\)|![\\1](https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/${MODULO}/images/\\2)|g" "$HDU_FILE"
