@@ -69,13 +69,13 @@
 | RUT input | `rut`, `dv` | `RELA_RUT`, `RELA_DV` | Separados para validación |
 | Nombre completo | `nombreCompleto` | `RELA_NOMBRE \|\| ' ' \|\| RELA_PATERNO \|\| ' ' \|\| RELA_MATERNO` | Concatenación en query |
 | Email | `email` | `RELA_EMAIL` | Read-only si tipo=INTERNO |
-| Teléfono | `telefono` | `RELA_FONO` | ⚠️ BD usa RELA_FONO |
-| Tipo Usuario | `tipoUsuario` | `RELA_TIPO_USUARIO` | INTERNO/EXTERNO |
-| Jurisdicción | `jurisdiccion` | `RELA_JURISDICCION` | SIMPLE/AMPLIADA |
+| Teléfono | `telefono` | `RELA_FONO` | BD usa RELA_FONO |
+| Tipo Usuario | `tipoUsuario` | `BR_RELACIONADOS_EXTENSION.TIPO_USUARIO` | INTERNO/EXTERNO (LEFT JOIN) |
+| Jurisdicción | `jurisdiccion` | `BR_RELACIONADOS_EXTENSION.JURISDICCION` | SIMPLE/AMPLIADA (LEFT JOIN) |
 
 **Query SQL:**
 ```sql
--- Usuario base
+-- Usuario base con LEFT JOIN a extensión
 SELECT 
   r.RELA_RUT as rut,
   r.RELA_DV as dv,
@@ -85,12 +85,13 @@ SELECT
   r.RELA_NOMBRE || ' ' || r.RELA_PATERNO || ' ' || r.RELA_MATERNO as nombreCompleto,
   r.RELA_EMAIL as email,
   r.RELA_FONO as telefono,
-  r.RELA_TIPO_USUARIO as tipoUsuario,
-  r.RELA_JURISDICCION as jurisdiccion,
-  r.RELA_VIGENCIA_INICIO as vigenciaInicio,
-  r.RELA_VIGENCIA_FIN as vigenciaFin,
-  r.RELA_UNIDAD_PRINCIPAL as unidadPrincipal
+  COALESCE(ext.TIPO_USUARIO, 'INTERNO') as tipoUsuario,
+  COALESCE(ext.JURISDICCION, 'SIMPLE') as jurisdiccion,
+  ext.VIGENCIA_INICIO as vigenciaInicio,
+  ext.VIGENCIA_FIN as vigenciaFin,
+  ext.UNIDAD_PRINCIPAL as unidadPrincipal
 FROM AVAL.BR_RELACIONADOS r
+LEFT JOIN AVAL.BR_RELACIONADOS_EXTENSION ext ON r.RELA_RUT = ext.RELA_RUT
 WHERE r.RELA_RUT = :rut;
 
 -- Cargos del usuario (vigentes y no vigentes)

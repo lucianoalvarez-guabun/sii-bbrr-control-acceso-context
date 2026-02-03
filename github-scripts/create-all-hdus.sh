@@ -69,11 +69,15 @@ while IFS='|' read -r _ id filename functionality module status _; do
         fi
         
         issue_title="$id: $file_title"
+        
+        # Convertir rutas de imágenes relativas a URLs absolutas de GitHub
+        hdu_content=$(./convert-image-urls.sh "$hdu_path" "$module_dir")
+        
         body="**Épica:** $module_dir
 
 ---
 
-$(cat "$hdu_path")"
+$hdu_content"
         
         labels='["HdU","Módulo-'$module'"'
         case "$status" in

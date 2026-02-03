@@ -4,6 +4,25 @@ Scripts para gestionar issues de HdU en GitHub Project.
 
 ## Scripts Disponibles
 
+### Helpers Internos
+
+#### `convert-image-urls.sh` - Convertir URLs de imágenes
+Convierte rutas relativas de imágenes a URLs absolutas de GitHub para que se visualicen correctamente en los issues.
+
+```bash
+./convert-image-urls.sh <archivo.md> <modulo>
+```
+
+**Ejemplo:**
+```bash
+./convert-image-urls.sh HdU-009-Buscar-Usuario.md V-Mantenedor-Usuarios-Relacionados
+```
+
+**Conversión:**
+- `![desc](./images/image-0027.png)` → `![desc](https://github.com/owner/repo/blob/main/MODULE/images/image-0027.png)`
+
+Este helper es usado automáticamente por `create-all-hdus.sh` y `update-hdu-issues.sh`.
+
 ### Crear Issues
 
 #### `create-hdu-issue.sh` - Crear un solo issue
@@ -19,14 +38,14 @@ Crea un issue individual con épica.
 ```
 
 #### `create-all-hdus.sh` - Crear todos los issues
-Crea todos los issues desde `registro-hdu.md` con épica en el cuerpo.
+Crea todos los issues desde `registro-hdu.md` con épica en el cuerpo y URLs de imágenes absolutas.
 
 ```bash
 ./create-all-hdus.sh
 ```
 
 #### `update-hdu-issues.sh` - Actualizar issues existentes
-Actualiza el contenido de los issues cuando cambien los archivos `.md` en el repositorio.
+Actualiza el contenido de los issues cuando cambien los archivos `.md` en el repositorio. Convierte automáticamente las URLs de imágenes.
 
 ```bash
 ./update-hdu-issues.sh
@@ -35,6 +54,7 @@ Actualiza el contenido de los issues cuando cambien los archivos `.md` en el rep
 **Funcionalidad:**
 - Detecta issues existentes por título
 - Compara contenido actual vs contenido en GitHub
+- Convierte URLs de imágenes relativas a absolutas
 - Actualiza solo los que tienen cambios
 - Reporta issues sin cambios o no encontrados
 

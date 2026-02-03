@@ -723,6 +723,20 @@ Agregar sección "Validación de Coherencia":
 6. **BR_FUNCIONES_CARGO_RELACIONADO** (7 cols): Usuario-función con cargo/unidad
 7. **BR_RELACIONADOS** (9 cols): RELA_RUT NUMBER(9) PK + 8 más
 
+**Tablas relacionadas con Unidades de Negocio:**
+
+1. **BR_UNIDADES_NEGOCIO** (23 cols, 585 registros):
+   - PK compuesta: UNNE_TIUN_CODIGO NUMBER(2) + UNNE_CODIGO NUMBER(6)
+   - FK recursiva: UNNE_UNNE_TIUN_CODIGO + UNNE_UNNE_CODIGO (unidad padre)
+   - UNNE_NOMBRE VARCHAR2(50), UNNE_DIRECCION VARCHAR2(50)
+   - UNNE_FONO_1, UNNE_FAX_1, UNNE_EMAIL VARCHAR2(80)
+   - UNNE_COMU_CODIGO_CONARA_SII NUMBER(5) (comuna)
+   - UNNE_VIGENTE NUMBER(1)
+
+2. **BR_TIPOS_UNIDAD** (2 cols, 23 tipos):
+   - TIUN_CODIGO NUMBER(2) PK
+   - TIUN_DESCRIPCION VARCHAR2(40)
+
 **CRÍTICO - Alcances embebidos en ATRI_CODIGO (2 chars):**
 - NO existe tabla BR_ALCANCES
 - 1º char = Operación (B=Consultar, J=Ingresar, U=Modificar, E=Eliminar, etc.)

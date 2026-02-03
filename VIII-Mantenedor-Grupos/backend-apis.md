@@ -34,7 +34,7 @@ Ejemplo: /12.345.678-9/
 **Validaciones:**
 - `nombre`: obligatorio, max 100 caracteres, sin caracteres especiales
 - `titulo`: obligatorio, max 100 caracteres
-- `funcionId`: obligatorio, debe existir en BR_FUNCIONES con FUNC_VIGENTE='S'
+- `funcionId`: obligatorio, debe existir en BR_FUNCIONES con FUNS_VIGENTE=1
 - Usuario autenticado debe tener perfil "Administrador Nacional"
 
 **Response 201 Created:**
@@ -43,7 +43,7 @@ Ejemplo: /12.345.678-9/
   "grupoId": 123,
   "codigo": 123,
   "nombre": "Sistema OT",
-  "vigente": "S",
+  "vigente": 1,
   "mensaje": "Grupo creado exitosamente"
 }
 ```
@@ -58,9 +58,14 @@ Ejemplo: /12.345.678-9/
 ```sql
 -- Transacción atómica con 3 INSERTs
 BEGIN
-  -- 1. Grupo: SEQ_GRUPO_ID.NEXTVAL, vigente='S'
-  -- 2. Título: SEQ_TITULO_ID.NEXTVAL, orden=1
-  -- 3. Función: relación TIFU_TITU_ID + TIFU_FUNC_ID
+  INSERT INTO BR_GRUPOS (GRUP_CODIGO, GRUP_NOMBRE, GRUP_VIGENTE)
+  VALUES (:codigo, :nombre, 1);
+  
+  INSERT INTO BR_TITULOS (TITU_GRUP_CODIGO, TITU_CODIGO, TITU_NOMBRE, TITU_ORDEN)
+  VALUES (:grupCodigo, :tituCodigo, :titulo, 1);
+  
+  INSERT INTO BR_TITULOS_FUNCIONES (TIFU_GRUP_CODIGO, TIFU_TITU_CODIGO, TIFU_FUNS_CODIGO)
+  VALUES (:grupCodigo, :tituCodigo, :funsCodigo);
   COMMIT;
 END;
 ```
@@ -127,17 +132,17 @@ END;
 **Query SQL:**
 ```sql
 SELECT 
-  g.GRUP_ID, g.GRUP_NOMBRE, g.GRUP_VIGENTE,
-  (SELECT COUNT(*) FROM BR_USUARIO_GRUPO WHERE USGR_GRUP_ID = g.GRUP_ID AND USGR_ACTIVO = 'S') AS cantidad_usuarios,
-  t.TITU_ID, t.TITU_NOMBRE, t.TITU_ORDEN,
-  f.FUNC_ID, f.FUNC_NOMBRE, f.FUNC_DESCRIPCION
-FROM BR_GRUPOS g
-LEFT JOIN BR_TITULOS t ON t.TITU_GRUP_ID = g.GRUP_ID
-LEFT JOIN BR_TITULOS_FUNCIONES tf ON tf.TIFU_TITU_ID = t.TITU_ID
-LEFT JOIN BR_FUNCIONES f ON f.FUNC_ID = tf.TIFU_FUNC_ID
-WHERE g.GRUP_ID = :grupoId
+  g.GRUP_CODIGO, g.GRUP_NOMBRE, g.GRUP_VIGENTE,
+  (SELECT COUNT(*) FROM BR_USUARIOS_GRUPOS WHERE USGR_GRUP_CODIGO = g.GRUP_CODIGO) AS cantidad_usuarios,
+  t.TITU_CODIGO, t.TITU_NOMBRE, t.TITU_ORDEN,
+  f.FUNS_CODIGO, f.FUNS_DESCRIPCION
+FROM AVAL.BR_GRUPOS g
+LEFT JOIN AVAL.BR_TITULOS t ON t.TITU_GRUP_CODIGO = g.GRUP_CODIGO
+LEFT JOIN AVAL.BR_TITULOS_FUNCIONES tf ON tf.TIFU_GRUP_CODIGO = t.TITU_GRUP_CODIGO AND tf.TIFU_TITU_CODIGO = t.TITU_CODIGO
+LEFT JOIN AVAL.BR_FUNCIONES f ON f.FUNS_CODIGO = tf.TIFU_FUNS_CODIGO
+WHERE g.GRUP_CODIGO = :grupoCodigo
   AND g.GRUP_VIGENTE = :vigente
-ORDER BY t.TITU_ORDEN, f.FUNC_NOMBRE;
+ORDER BY t.TITU_ORDEN, f.FUNS_DESCRIPCION;
 ```
 
 ---
