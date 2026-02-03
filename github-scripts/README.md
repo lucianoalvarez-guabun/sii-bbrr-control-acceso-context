@@ -25,18 +25,6 @@ Este helper es usado automáticamente por `create-all-hdus.sh` y `update-hdu-iss
 
 ### Crear Issues
 
-#### `create-hdu-issue.sh` - Crear un solo issue
-Crea un issue individual con épica.
-
-```bash
-./create-hdu-issue.sh <HdU-ID> <archivo.md> <épica>
-```
-
-**Ejemplo:**
-```bash
-./create-hdu-issue.sh HdU-001 HdU-001-Crear-Grupo.md "VIII-Mantenedor-Grupos"
-```
-
 #### `create-all-hdus.sh` - Crear todos los issues
 Crea todos los issues desde `registro-hdu.md` con épica en el cuerpo y URLs de imágenes absolutas.
 
