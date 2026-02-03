@@ -79,6 +79,9 @@ while IFS='|' read -r _ id filename functionality module status _; do
             file_title="$functionality"
         fi
         
+        # Remover ID duplicado si el título ya lo incluye (ej: "HdU-012: Titulo")
+        file_title=$(echo "$file_title" | sed -E "s/^$id: //")
+        
         issue_title="$id: $file_title"
         
         # Convertir rutas de imágenes relativas a URLs absolutas de GitHub

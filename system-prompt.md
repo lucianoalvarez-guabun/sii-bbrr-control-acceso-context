@@ -457,10 +457,13 @@ Validaciones a realizar:
 **Objetivo:** Preparar la estructura y recursos del módulo ANTES de que usuario proporcione imágenes.
 
 #### 0.1 Extraer Especificación del Módulo
-1. Leer `tmp/Requerimineto-Control-Acceso-2/output/requeriments.md`
+1. Leer **AMBOS** archivos de requerimientos:
+   - `tmp/Requerimineto-Control-Acceso-2/output/requeriments.md` (limpio)
+   - `tmp/Requerimineto-Control-Acceso-2/output/requeriments_backup.md` (backup completo)
 2. Localizar sección del módulo (ej: "## VI. MÓDULO MANTENEDOR DE UNIDADES DE NEGOCIO")
-3. Extraer texto desde encabezado hasta siguiente módulo (sección ##)
-4. Guardar especificación en variable para referencia
+3. **Si no existe en requeriments.md, buscar en requeriments_backup.md**
+4. Extraer texto desde encabezado hasta siguiente módulo (sección ##)
+5. Guardar especificación en variable para referencia
 
 #### 0.2 Crear Estructura de Carpetas
 ```bash
@@ -469,59 +472,23 @@ mkdir -p docs/develop-plan/[Nombre-Módulo]/DDL/
 
 Donde `[Nombre-Módulo]` sigue formato: `VI-Mantenedor-Unidades-Negocio`
 
-#### 0.3 Identificar y Extraer Imágenes del Módulo
+#### 0.3 Identificar y Copiar Imágenes del Módulo
 1. Buscar todas las referencias `![Imagen XX](images/image-XXXX.png)` en la sección del módulo
 2. Extraer lista de image-XXXX.png asociadas a este módulo
-3. Copiar desde `tmp/Requerimineto-Control-Acceso-2/output/images/image-XXXX.png` → `docs/develop-plan/[Módulo]/image-XXXX.png`
-4. Crear tabla de mapeo: `image-XXXX.png → contexto en requerimientos`
+3. Copiar desde `tmp/Requerimineto-Control-Acceso-2/output/images/image-XXXX.png` → `docs/develop-plan/[Módulo]/images/image-XXXX.png`
+4. Crear tabla de mapeo interno: `image-XXXX.png → contexto en requerimientos`
 
 **Ejemplo para Módulo VI:**
 ```
-Imágenes encontradas:
-- image-0029: Pantalla búsqueda unidad negocio
-- image-0030: Formulario crear unidad
-- image-0031: Sección cargos/funciones unidad
-- image-0032: Alerta éxito grabado
+Imágenes encontradas y copiadas:
+- image-0068: Pantalla principal unidad negocio con cargos
+- image-0027: SearchBar búsqueda inicial
+- image-0071: Formulario crear unidad
+- image-0075: Confirmación guardado exitoso
+- ... (14 imágenes totales)
 ```
 
-#### 0.4 Crear README.md Inicial
-Crear `docs/develop-plan/[Módulo]/README.md` con estructura:
-
-```markdown
-# [Nombre Módulo Completo]
-
-## 1. Especificación
-
-[Texto completo del módulo desde requerimientos.md]
-
-## 2. Imágenes de Referencia
-
-| Imagen | Ubicación | Contexto (Pendiente Análisis) |
-|--------|-----------|------|
-| image-0029 | ./image-0029.png | Pantalla inicial/búsqueda (verificar) |
-| image-0030 | ./image-0030.png | Formulario crear (verificar) |
-| image-0031 | ./image-0031.png | Sección detalles (verificar) |
-
-## 3. Estructura de Archivos
-
-- **frontend.md** - Componentes React (pendiente)
-- **backend-apis.md** - Endpoints REST (pendiente)
-- **HdU-*.md** - Historias de usuario (pendiente)
-- **DDL/** - Scripts SQL (pendiente)
-  - create-tables.sql
-  - alter-tables.sql
-
-## 4. Estado
-
-- [x] Carpeta y archivos creados
-- [ ] Imágenes extraídas y analizadas
-- [ ] frontend.md finalizado
-- [ ] backend-apis.md finalizado
-- [ ] HdU-*.md finalizado
-- [ ] DDL finalizado
-```
-
-#### 0.5 Crear Plantilla de Checklist en progress-log.md
+#### 0.4 Actualizar progress-log.md
 Agregar entrada:
 ```markdown
 ### VI. Mantenedor de Unidades de Negocio
@@ -530,15 +497,18 @@ Agregar entrada:
 
 **Archivos Creados:**
 - [x] docs/develop-plan/VI-Mantenedor-Unidades-Negocio/
-- [x] README.md (especificación + tabla imágenes)
-- [x] image-0029.png, image-0030.png, image-0031.png, image-0032.png
-- [ ] Análisis contextual imágenes (pendiente usuario)
+- [x] images/ (14 imágenes copiadas desde tmp/)
 - [ ] frontend.md (pendiente)
 - [ ] backend-apis.md (pendiente)
 - [ ] HdU-*.md (pendiente)
-- [ ] DDL/ (pendiente)
+- [ ] DDL/create-tables.sql (pendiente)
 
-**Próximo Paso:** Usuario adjunta imágenes por chat → inicio Paso 1
+**Especificación:** Recuperada de requeriments_backup.md (402 líneas)
+**Próximo Paso:** Crear frontend.md con análisis de mockups
+```
+
+**Especificación:** Recuperada de requeriments_backup.md (402 líneas)
+**Próximo Paso:** Crear frontend.md con análisis de mockups
 ```
 
 ---
