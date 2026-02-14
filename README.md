@@ -10,8 +10,16 @@ docs/develop-plan/
 ├── progress-log.md              # Log de progreso del desarrollo
 ├── system-prompt.md             # Contexto y prompts del sistema
 ├── sync-to-github-project.sh    # Script de sincronización con GitHub Project
+├── GUIA-CREACION-AGENTES-CLOUD.md   # 📚 Guía completa: Cómo crear agentes cloud
+├── QUICK-REFERENCE-AGENTES.md   # 🚀 Referencia rápida de agentes
 ├── VIII-Mantenedor-Grupos/      # Módulo VIII - HdU y documentación
 ├── V-Mantenedor-Usuarios-Relacionados/
+├── _bmad/_config/custom/        # Agentes custom del proyecto
+│   ├── ddl-architect.md         # 🗄️ Agente DDL Oracle
+│   ├── backend-api-architect.md # ⚙️ Agente Backend APIs
+│   ├── frontend-architect.md    # 🎨 Agente Frontend Vue.js
+│   ├── hdu-architect.md         # 📋 Agente Historias de Usuario
+│   └── documentation-architect.md # 📚 Agente Documentación
 └── [otros módulos]/
 ```
 
@@ -126,6 +134,25 @@ Las HdU se sincronizan como **issues** con las siguientes etiquetas:
 - `HdU`: Todas las historias de usuario
 - `Módulo-{N}`: Según el módulo (VIII, V, VI, etc.)
 - `done` / `in-progress` / `backlog`: Según estado
+
+## Agentes Cloud Custom
+
+Este proyecto utiliza **agentes custom de GitHub Copilot** especializados en diferentes áreas:
+
+| Agente | Icono | Especialidad | Ubicación |
+|--------|-------|-------------|-----------|
+| DDL Architect | 🗄️ | Diseño de esquemas Oracle | `_bmad/_config/custom/ddl-architect.md` |
+| Backend API Architect | ⚙️ | APIs REST con Spring Boot | `_bmad/_config/custom/backend-api-architect.md` |
+| Frontend Architect | 🎨 | Componentes Vue.js | `_bmad/_config/custom/frontend-architect.md` |
+| HdU Architect | 📋 | Historias de Usuario | `_bmad/_config/custom/hdu-architect.md` |
+| Documentation Architect | 📚 | Documentación técnica | `_bmad/_config/custom/documentation-architect.md` |
+
+### 📚 Aprende a Crear Agentes
+
+¿Quieres crear tus propios agentes cloud? Consulta:
+
+- **[Guía Completa de Creación de Agentes](./GUIA-CREACION-AGENTES-CLOUD.md)** - Tutorial detallado paso a paso
+- **[Referencia Rápida](./QUICK-REFERENCE-AGENTES.md)** - Cheatsheet de 5 minutos
 
 ## Mantenimiento
 
